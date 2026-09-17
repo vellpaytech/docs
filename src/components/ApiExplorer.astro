@@ -27,7 +27,7 @@ const initialBody = JSON.stringify(body, null, 2);
               <option value="KH">柬埔寨 · KH</option><option value="IN">印度 · IN</option><option value="CO">哥伦比亚 · CO</option>
               <option value="AR">阿根廷 · AR</option><option value="BR">巴西 · BR</option>
             </select></label>
-            <label>环境<input data-base-url placeholder="测试域名配置后启用" disabled /></label>
+            <label>测试环境<input data-base-url placeholder="该国家测试域名暂未配置" disabled /></label>
           </div>
           <h3>Header Params</h3>
           <div class="header-grid">
@@ -54,12 +54,26 @@ const initialBody = JSON.stringify(body, null, 2);
 </vell-api-explorer>
 
 <script>
+  const testEnvironments: Record<string, string> = {
+    AR: "https://ar-test-gateway.vellpay.com",
+    BR: "https://br-test-gateway.vellpay.com",
+    CO: "https://co-test-gateway.vellpay.com",
+    IN: "https://in-test-gateway.vellpay.com",
+    KH: "https://kh-test-gateway.vellpay.com",
+    KR: "https://kr-test-gateway.vellpay.com",
+  };
+
   class VellApiExplorer extends HTMLElement {
     connectedCallback() {
       const country = this.getAttribute("data-country") || "ID";
       const queryCountry = new URLSearchParams(window.location.search).get("country");
       const countrySelect = this.querySelector("[data-country-select]");
       if (countrySelect instanceof HTMLSelectElement) countrySelect.value = queryCountry || country;
+      countrySelect?.addEventListener("change", () => {
+        this.refreshEnvironment();
+        this.refreshRequestMeta();
+      });
+      this.refreshEnvironment();
       this.refreshRequestMeta();
       this.querySelector("[data-open]")?.addEventListener("click", () => {
         this.refreshRequestMeta();
@@ -71,6 +85,18 @@ const initialBody = JSON.stringify(body, null, 2);
       });
       this.querySelector("[data-copy]")?.addEventListener("click", () => this.copyCurl());
       this.querySelector("[data-send]")?.addEventListener("click", () => this.send());
+    }
+    refreshEnvironment() {
+      const countrySelect = this.querySelector("[data-country-select]");
+      const baseUrl = this.querySelector("[data-base-url]");
+      const sendButton = this.querySelector("[data-send]");
+      const country = countrySelect instanceof HTMLSelectElement ? countrySelect.value : "";
+      const environment = testEnvironments[country] || "";
+      if (baseUrl instanceof HTMLInputElement) baseUrl.value = environment;
+      if (sendButton instanceof HTMLButtonElement) {
+        sendButton.disabled = !environment;
+        sendButton.textContent = environment ? "发送测试请求" : "测试域名待配置";
+      }
     }
     refreshRequestMeta() {
       const nonce = this.querySelector('[data-header="nonce"]');

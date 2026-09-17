@@ -12,6 +12,21 @@ description: VellPay API 调用、订单处理和上线检查说明。
 - 接口返回 `code=200` 只代表本次请求处理成功，不代表交易已经成功。
 - 交易结果应结合 `data.status`、查询接口和回调通知确认。
 
+## 测试环境
+
+文档调试功能仅连接以下测试环境，不会向生产环境发送请求。平台根据域名识别订单所属国家。
+
+| 国家 | 测试环境 |
+|---|---|
+| 韩国 | `https://kr-test-gateway.vellpay.com` |
+| 柬埔寨 | `https://kh-test-gateway.vellpay.com` |
+| 印度 | `https://in-test-gateway.vellpay.com` |
+| 哥伦比亚 | `https://co-test-gateway.vellpay.com` |
+| 阿根廷 | `https://ar-test-gateway.vellpay.com` |
+| 巴西 | `https://br-test-gateway.vellpay.com` |
+
+印度尼西亚、越南测试域名配置完成后补充。
+
 ## 订单创建
 
 1. 商户生成唯一的 `merchantOrderNo`。

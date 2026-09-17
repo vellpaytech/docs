@@ -2,6 +2,8 @@ import { defineConfig } from "astro/config";
 import starlight from "@astrojs/starlight";
 import tailwind from "@astrojs/tailwind";
 
+const base = "/docs";
+
 const api = (label, slug) => ({ label, slug });
 const commonApis = [
   api("代收创建", "api/payment-create"), api("代收查询", "api/payment-query"),
@@ -18,7 +20,8 @@ const country = (label, code, extraItems = []) => ({
 });
 
 export default defineConfig({
-  site: "https://docs.vellpay.example",
+  site: "https://vellpaytech.github.io",
+  base,
   integrations: [
     starlight({
       title: "VellPay Developers",
@@ -27,7 +30,7 @@ export default defineConfig({
       locales: { zh: { label: "中文", lang: "zh-CN" } },
       head: [
         { tag: "meta", attrs: { name: "theme-color", content: "#07111f" } },
-        { tag: "link", attrs: { rel: "icon", type: "image/svg+xml", href: "/favicon.svg" } },
+        { tag: "link", attrs: { rel: "icon", type: "image/svg+xml", href: `${base}/favicon.svg` } },
       ],
       sidebar: [
         { label: "开发指南", items: [
