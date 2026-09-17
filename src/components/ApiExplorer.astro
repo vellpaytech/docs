@@ -1,0 +1,148 @@
+---
+interface Props {
+  method?: string;
+  path: string;
+  country?: string;
+  body?: Record<string, unknown>;
+  title?: string;
+}
+const { method = "POST", path, country = "ID", body = {}, title = "模拟请求" } = Astro.props;
+const initialBody = JSON.stringify(body, null, 2);
+---
+
+<vell-api-explorer data-method={method} data-path={path} data-country={country}>
+  <button class="try-trigger" data-open><span>▶</span> Try it · 模拟请求</button>
+  <dialog>
+    <form method="dialog" class="dialog-shell">
+      <header>
+        <div><span class="eyebrow">API TEST CONSOLE</span><h2>{title}</h2></div>
+        <button class="close" value="cancel" aria-label="关闭">×</button>
+      </header>
+      <div class="workspace">
+        <section class="request-pane">
+          <div class="request-line"><span>{method}</span><code>{path}</code></div>
+          <div class="control-row">
+            <label>国家<select data-country-select>
+              <option value="ID">印尼 · ID</option><option value="VN">越南 · VN</option><option value="KR">韩国 · KR</option>
+              <option value="KH">柬埔寨 · KH</option><option value="IN">印度 · IN</option><option value="CO">哥伦比亚 · CO</option>
+              <option value="AR">阿根廷 · AR</option><option value="BR">巴西 · BR</option>
+            </select></label>
+            <label>环境<input data-base-url placeholder="测试域名配置后启用" disabled /></label>
+          </div>
+          <h3>Header Params</h3>
+          <div class="header-grid">
+            <label>appId<input data-header="appId" autocomplete="off" placeholder="TEST_APP_ID" /></label>
+            <label>nonce<input data-header="nonce" autocomplete="off" /></label>
+            <label>timestamp<input data-header="timestamp" autocomplete="off" /></label>
+            <label>Authorization<input data-header="Authorization" type="password" autocomplete="off" placeholder="仅保留在当前页面" /></label>
+          </div>
+          <h3>Body Params <small>application/json</small></h3>
+          <textarea data-body spellcheck="false">{initialBody}</textarea>
+        </section>
+        <section class="response-pane">
+          <div class="response-heading"><h3>Response</h3><span class="test-badge">TEST ONLY</span></div>
+          <pre data-output><code>配置测试域名后，响应状态、耗时和 JSON 将显示在这里。</code></pre>
+          <p class="security">认证信息仅保留在当前页面内存中，不会写入本地存储。</p>
+        </section>
+      </div>
+      <footer>
+        <button type="button" class="secondary" data-copy>生成并复制 cURL</button>
+        <button type="button" data-send disabled>测试域名待配置</button>
+      </footer>
+    </form>
+  </dialog>
+</vell-api-explorer>
+
+<script>
+  class VellApiExplorer extends HTMLElement {
+    connectedCallback() {
+      const country = this.getAttribute("data-country") || "ID";
+      const queryCountry = new URLSearchParams(window.location.search).get("country");
+      const countrySelect = this.querySelector("[data-country-select]");
+      if (countrySelect instanceof HTMLSelectElement) countrySelect.value = queryCountry || country;
+      this.refreshRequestMeta();
+      this.querySelector("[data-open]")?.addEventListener("click", () => {
+        this.refreshRequestMeta();
+        const dialog = this.querySelector("dialog");
+        if (dialog instanceof HTMLDialogElement) dialog.showModal();
+      });
+      this.querySelector("dialog")?.addEventListener("click", (event) => {
+        if (event.target === event.currentTarget && event.currentTarget instanceof HTMLDialogElement) event.currentTarget.close();
+      });
+      this.querySelector("[data-copy]")?.addEventListener("click", () => this.copyCurl());
+      this.querySelector("[data-send]")?.addEventListener("click", () => this.send());
+    }
+    refreshRequestMeta() {
+      const nonce = this.querySelector('[data-header="nonce"]');
+      const timestamp = this.querySelector('[data-header="timestamp"]');
+      if (nonce instanceof HTMLInputElement && !nonce.value) nonce.value = crypto.randomUUID().replaceAll("-", "");
+      if (timestamp instanceof HTMLInputElement) timestamp.value = String(Date.now());
+    }
+    requestData() {
+      const value = (selector) => this.querySelector(selector)?.value || "";
+      return {
+        base: value("[data-base-url]").replace(/\/$/, ""), path: this.getAttribute("data-path") || "",
+        method: this.getAttribute("data-method") || "POST",
+        headers: { "Content-Type": "application/json", appId: value('[data-header="appId"]'), nonce: value('[data-header="nonce"]'), timestamp: value('[data-header="timestamp"]'), Authorization: value('[data-header="Authorization"]') },
+        body: value("[data-body]"),
+      };
+    }
+    async copyCurl() {
+      const req = this.requestData();
+      const headers = Object.entries(req.headers).map(([key, value]) => `-H '${key}: ${value}'`).join(" \\\n  ");
+      const curl = `curl -X ${req.method} '${req.base || "https://TEST_DOMAIN"}${req.path}' \\\n  ${headers} \\\n  --data '${req.body.replaceAll("'", "'\\''")}'`;
+      await navigator.clipboard.writeText(curl);
+      const button = this.querySelector("[data-copy]");
+      if (button) { button.textContent = "已复制"; setTimeout(() => button.textContent = "生成并复制 cURL", 1200); }
+    }
+    async send() {
+      const req = this.requestData();
+      if (!req.base) return;
+      const output = this.querySelector("[data-output] code");
+      try {
+        const started = performance.now();
+        const response = await fetch(`${req.base}${req.path}`, { method: req.method, headers: req.headers, body: req.body });
+        const text = await response.text();
+        let content = text;
+        try { content = JSON.stringify(JSON.parse(text), null, 2); } catch {}
+        if (output) output.textContent = `${response.status} · ${Math.round(performance.now() - started)}ms\n${content}`;
+      } catch (error) { if (output) output.textContent = error instanceof Error ? error.message : String(error); }
+    }
+  }
+  if (!customElements.get("vell-api-explorer")) customElements.define("vell-api-explorer", VellApiExplorer);
+</script>
+
+<style>
+  vell-api-explorer { display:block; float:right; margin:-4.2rem 0 1rem 1rem; position:relative; z-index:3; }
+  .try-trigger { align-items:center; background:#0f766e; border:0; border-radius:.55rem; color:white; cursor:pointer; display:flex; font-size:.78rem; font-weight:750; gap:.45rem; padding:.65rem .85rem; }
+  dialog { background:transparent; border:0; color:#dbeafe; margin:auto; max-height:90vh; padding:0; width:min(70rem,94vw); }
+  dialog::backdrop { backdrop-filter:blur(5px); background:rgba(2,8,18,.72); }
+  .dialog-shell { background:#091522; border:1px solid #284253; border-radius:1rem; box-shadow:0 30px 100px rgba(0,0,0,.55); overflow:hidden; }
+  header { align-items:center; border-bottom:1px solid #213747; display:flex; justify-content:space-between; padding:1rem 1.2rem; }
+  dialog header h2 { border:0!important; color:#f8fafc!important; font-size:1.2rem; margin:.15rem 0 0!important; padding:0!important; }
+  .eyebrow { color:#5eead4; font-size:.65rem; font-weight:800; letter-spacing:.14em; }
+  .close { background:transparent; border:0; color:#9fb4c2; cursor:pointer; font-size:1.8rem; line-height:1; }
+  .workspace { display:grid; grid-template-columns:1.15fr .85fr; min-height:34rem; }
+  .request-pane,.response-pane { padding:1.1rem 1.2rem; }
+  .response-pane { background:#050d16; border-left:1px solid #213747; }
+  .request-line { align-items:center; background:#06101b; border:1px solid #294251; border-radius:.55rem; display:flex; gap:.6rem; padding:.65rem; }
+  .request-line span { background:#14b8a6; border-radius:.3rem; color:#04120f; font-size:.68rem; font-weight:900; padding:.3rem .45rem; }
+  .request-line code { background:transparent!important; border:0!important; color:#d8e8ee!important; padding:0; }
+  .control-row,.header-grid { display:grid; gap:.7rem; grid-template-columns:1fr 1fr; }
+  dialog h3 { border:0!important; color:#f1f5f9!important; font-size:.82rem; margin:1rem 0 .45rem!important; padding:0!important; }
+  h3 small { color:#6ee7d8; font-size:.65rem; font-weight:500; margin-left:.4rem; }
+  label { color:#9fb4c2; display:block; font-size:.7rem; font-weight:650; margin-top:.7rem; }
+  input,select,textarea { background:#06101b; border:1px solid #294251; border-radius:.45rem; color:#e6f4f3; display:block; font:500 .75rem ui-monospace,SFMono-Regular,Menlo,monospace; margin-top:.3rem; outline:none; padding:.6rem .68rem; width:100%; }
+  input:focus,select:focus,textarea:focus { border-color:#2dd4bf; box-shadow:0 0 0 2px rgba(45,212,191,.12); }
+  textarea { min-height:15rem; resize:vertical; }
+  .response-heading { align-items:center; display:flex; justify-content:space-between; }
+  .test-badge { background:#173244; border:1px solid #28516a; border-radius:999px; color:#7dd3fc; font-size:.62rem; font-weight:800; padding:.25rem .45rem; }
+  pre { background:#02070d; border:1px solid #203745; border-radius:.55rem; min-height:26rem; overflow:auto; padding:.8rem; white-space:pre-wrap; }
+  pre code { color:#8fb5c5; font-size:.7rem; }
+  .security { color:#6f8795; font-size:.66rem; line-height:1.45; }
+  footer { border-top:1px solid #213747; display:flex; gap:.65rem; justify-content:flex-end; padding:.85rem 1.2rem; }
+  footer button { background:#14b8a6; border:0; border-radius:.5rem; color:#05201d; cursor:pointer; font-size:.73rem; font-weight:800; padding:.68rem 1rem; }
+  footer button:disabled { cursor:not-allowed; opacity:.45; }
+  footer .secondary { background:#173244; color:#b8e5e0; }
+  @media(max-width:52rem) { vell-api-explorer { float:none; margin:.5rem 0 1rem; } .workspace { grid-template-columns:1fr; } .response-pane { border-left:0; border-top:1px solid #213747; } .control-row,.header-grid { grid-template-columns:1fr; } }
+</style>

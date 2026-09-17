@@ -1,0 +1,31 @@
+---
+title: 柬埔寨 KYC 创建
+description: 为柬埔寨用户创建 KYC 认证申请。
+---
+import ApiExplorer from '../../../../components/ApiExplorer.astro';
+
+<ApiExplorer country="KH" path="/trade/kyc/create" body={{userIdCard:"K12345678",userName:"TEST USER",userPhone:"12345678",kycCallbackUrl:"https://merchant.example/kyc-callback"}} />
+
+<p class="endpoint-lead">本接口仅对柬埔寨开放。</p>
+
+<div class="method-path"><strong>POST</strong><code>/trade/kyc/create</code></div>
+
+## 请求参数
+| 字段 | 类型 | 必填 | 最大长度 | 说明 |
+|---|---|---|---:|---|
+| `userIdCard` | String | 是 | 50 | 用户证件号 |
+| `userName` | String | 是 | 64 | 用户姓名 |
+| `userPhone` | String | 是 | 8～9 | 柬埔寨本地手机号，不含国家区号 |
+| `kycCallbackUrl` | String | 是 | 200 | KYC 状态回调地址 |
+
+## 响应参数
+| 字段 | 类型 | 必填 | 最大长度 | 说明 |
+|---|---|---|---:|---|
+| `code` | int | 是 | - | 状态码，非 200 代表异常 |
+| `data` | Object | 是 | - | 响应体 |
+| `data.userPhone` | String | 是 | 8～9 | 用户手机号 |
+| `data.authenticationStatus` | String | 是 | 32 | 认证状态 |
+| `data.authenticationUrl` | String | 是 | 20 | 认证地址 |
+| `data.failMsg` | String | 否 | 20 | 失败原因 |
+| `msg` | String | 否 | - | 异常信息 |
+| `tid` | String | 是 | - | traceId |

@@ -1,110 +1,57 @@
 ---
 title: 创建密钥
-description: 商户创建和使用公私钥
+description: 生成并配置 VellPay 接口使用的 RSA 密钥对。
 ---
 
-## 步骤说明
+## 操作步骤
 
-1. 创建公钥和私钥（两种方法选其一）
-   1. 方法一：使用命令行创建；
-   2. 方法二：使用密钥生成工具创建（建议使用此方法）；
-2. 在 Teemopay 填写生成的公钥并保存好您的私钥；
-3. 接口调用时加密和验签；
+1. 生成一组商户 RSA 公钥和私钥。
+2. 在 VellPay 商户后台填写商户公钥，并保存平台公钥。
+3. 使用商户私钥为请求签名，使用平台公钥验证回调签名。
 
-## 操作示例
+## 第一步：生成商户密钥对
 
-### 第一步：创建公钥和私钥（两种方法选其一）
-
-#### 方法一：使用命令行创建
-
-如果您使用的 Windows 系统，请打开「命令提示符」（CMD）或「PowerShell」，执行以下命令：
+VellPay 使用 RSA 密钥完成请求签名和响应验签。请在可信设备上使用 OpenSSL 生成 PKCS8 私钥及对应公钥。
 
 ```bash
-# 生成 1024 位的私钥
-openssl genpkey -algorithm RSA -out private_key.pem -pkeyopt rsa_keygen_bits:1024
-
-# 从私钥生成公钥
-openssl rsa -pubout -in private_key.pem -out public_key.pem
+openssl genpkey -algorithm RSA -out merchant_private_key.pem -pkeyopt rsa_keygen_bits:1024
+openssl rsa -pubout -in merchant_private_key.pem -out merchant_public_key.pem
 ```
 
-如果您使用的是 macOS 系统，请打开「终端」，执行以下命令：
+Windows 用户可在 CMD 或 PowerShell 中执行相同命令；macOS 用户如未安装 OpenSSL，可先执行 `brew install openssl`。
 
-```bash
-# 如果您没有安装 openssl 请先安装，若已安装请跳过本步骤
-brew install openssl
+生成后将得到：
 
-# 生成 1024 位的私钥
-openssl genpkey -algorithm RSA -out private_key.pem -pkeyopt rsa_keygen_bits:1024
+- `merchant_private_key.pem`：商户私钥，只能保存在商户服务端。
+- `merchant_public_key.pem`：商户公钥，用于配置到 VellPay 应用。
 
-# 从私钥生成公钥
-openssl rsa -pubout -in private_key.pem -out public_key.pem
-```
-
-#### 方法二：使用密钥生成工具创建（建议使用此方法）
-
-访问网址：[公私钥生成在线工具](https://uutool.cn/rsa-generate/)
-
-密钥长度选择：1024
-
-格式选择：PKCS8
-
-![公私钥生成在线工具](https://image.xiwu.me/2024/812b469da11fd34b0ccc5357893a4917.png)
-
-此时我们得到：公钥和私钥（使用时不要有空格和换行，请妥善保管私钥，公钥将在本文第二步中使用）
-
-:::caution[注意]
-以下密钥仅作为示例，请勿直接使用，造成安全事故请自负责任！！！
+:::caution
+不要把私钥发送给 VellPay，也不要把私钥提交到 Git、前端代码、文档站或日志系统。
 :::
 
-```shell
------BEGIN PUBLIC KEY-----
-MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDYYiW70DK6/dmiLw7Aj1WIxFnD
-Yt5AFYYMskeN00xcBPC8qWjn1tkfJncBdBMCdXBvtw1K2QcIHJ8xcSAjhxkySjeO
-N7ufpqyDLzv5MWMTWjnIxhLdP3D29tAwkdY/lnG2qlhWz17YzOuDfY26h85TqigN
-uB6XscZ0EuFNbHX8xwIDAQAB
------END PUBLIC KEY-----
+建议由商户安全团队在可信环境生成密钥。不要在不受信任的在线网站中生成生产密钥。
 
------BEGIN PRIVATE KEY-----
-MIICdwIBADANBgkqhkiG9w0BAQEFAASCAmEwggJdAgEAAoGBANhiJbvQMrr92aIv
-DsCPVYjEWcNi3kAVhgyyR43TTFwE8LypaOfW2R8mdwF0EwJ1cG+3DUrZBwgcnzFx
-ICOHGTJKN443u5+mrIMvO/kxYxNaOcjGEt0/cPb20DCR1j+WcbaqWFbPXtjM64N9
-jbqHzlOqKA24HpexxnQS4U1sdfzHAgMBAAECgYEAtmiupJATY/0BDS6cQgnSsjPL
-8+ERuHYsheF4Xn/EfEIR6wjpDZ/ZcuALLGd8avMzcImgo/smaVkvfg9+Z1TJEEYM
-LBoR//zJUTlSkXHKYPibMFS1gnOhu1izq6l+qOQA5GPa4zMSifzo2Otq/6+Rtr2I
-2UswwxGtyRcIfsXp8wkCQQDvs3dwq2GEN3v7XzqNBpLfvPS0WHGfNutFI5ZICPR7
-V8+FufoOOnJ16nTWya8vWWWuKdMLdh/fn8HxWikkD42dAkEA5xjI7NGTZ9T/VN+9
-OiI+NiOnBnIfxo5gCQiyTd5tWcmQ5YBOwsGFK7BQr4FiBrTfrclrV6blYQApqeVi
-MAhYswJAAo9sKyvpcrwU+u5ddbwoPXOLOZHoRMcVZDupE0PlOJwLf2YpIZXGOzQx
-40lsMZlG2MFhm7G7TWwraiSIY/Y2kQJBANAJ+edni6Gvl+RaPsk0xniKg/RDjON8
-jGvVjl6XXC22TWCtrzmYaUA5S4mTmiGbdrnGV4Hi1yAJu3gc7dV7zg0CQDEnqvJg
-hWrWrRlt0KpVg0a6nsXDLxPtrzPTARsFGAt/qfvuozsiviIWzKKL/Iq6vsJvpuyO
-ldfIyZPoMCcJuqc=
------END PRIVATE KEY-----
+## 第二步：交换公钥
+
+1. 登录 VellPay 商户后台，进入“商户中心 > 应用列表”。
+2. 如果尚未创建应用，点击“添加应用”；已有应用则进入应用设置。
+3. 点击“交换公钥”，按后台要求完成身份验证。
+4. 在“商户公钥”中填写生成的公钥正文。
+5. 复制并安全保存后台展示的“平台公钥”，后续用于验证平台回调签名。
+
+填写公钥时去掉下面两行标记，并移除正文中的空格和换行：
+
+```text
+-----BEGIN PUBLIC KEY-----
+-----END PUBLIC KEY-----
 ```
 
-### 第二步：在 Teemopay 填写生成的公钥并保存好您的私钥
+密钥必须配套使用。重新生成商户密钥后，需要在商户后台同步更新商户公钥。
 
-页面路径：商户中心 >> 应用列表
+:::note
+测试环境和生产环境的应用及密钥相互隔离。请勿使用测试应用调用生产环境，也不要在两个环境复用生产私钥。
+:::
 
-如果此时您没有应用，请点击「添加应用」创建一个；
+## 第三步：接入鉴权
 
-如果您已经有了应用，请点击小齿轮图标，进入应用设置页面；
-
-![应用列表](https://image.xiwu.me/2024/9c7cc0049a905d256fea469aa069e529.png)
-
-在应用设置页面，点击「交换公钥」按钮，并在弹窗中输入谷歌码验证；
-
-![应用设置](https://image.xiwu.me/2024/5932597de507a9164989ff96b5ae13fe.png)
-
-验证完谷歌码，我们将在弹窗中看到如下界面：
-
-1. 我们将上一个步骤生成的 公钥 填写到弹窗中 「商户公钥」 的位置；
-2. 填写时不需要「-----BEGIN PUBLIC KEY-----」和「-----END PUBLIC KEY-----」部分；
-3. 复制并保存 「平台公钥」，后续将使用；
-4. 注意：密钥是成对的，如果您更换了公钥私钥，需要再次更改您的商户公钥；
-
-![交换公钥](https://image.xiwu.me/2024/6ca888a3247afdba1b8a72be1ebb0bbf.png)
-
-### 第三步：接口调用时加密和验签
-
-参考 [鉴权示例](/zh/guides/authentication) 章节。
+完成密钥交换后，根据[接口鉴权](/zh/guides/authentication/)生成请求头中的 `Authorization`，并使用平台公钥验证响应及回调签名。

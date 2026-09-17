@@ -1,150 +1,102 @@
 ---
-title: 鉴权示例
-description: 鉴权和加密说明
+title: 接口鉴权
+description: VellPay RSA 签名、请求验签和回调验签规则。
 ---
 
-### 加密方式说明
+## 加密方式
 
-- 签名算法: RSA
-- 秘钥长度: 1024 位
-- 签名方式: SHA1WithRSA
+| 项目 | 取值 |
+|---|---|
+| 密钥算法 | RSA |
+| 密钥长度 | 1024 bit |
+| 签名算法 | SHA1WithRSA |
+| 签名编码 | Base64 |
+| 私钥格式 | PKCS8 |
 
-说明: 商户接入需先生成商户公钥(通过命令行或在线工具生成), 开通商户时生成平台公钥(用于交换公钥),
-商户在后台应用列表中添加应用后进入设置, 然后点击"交换公钥"按钮以查看平台的公钥, 填写商户生成的公钥完成交换,
-商户和平台使用各自的私钥进行加签, 各自使用对方公钥进行验签.
+商户使用自己的私钥签名，VellPay 使用商户公钥验签。平台回调使用平台私钥签名，商户使用平台公钥验签。接入前请先完成[创建密钥](/zh/guides/create-keys/)和公钥交换。
 
-### 请求头验证&签名规则
+## 请求鉴权流程
 
-1. 请求头中必须包含 nonce 和 timestamp
-2. timestamp 如果商户发送当前时间戳和当前平台时间超过 30S, 则认为此请求已过期
-3. 生成随机字符串 nonce, 24 小时内不能重复
-4. 请求体字段名按照 ASCII 进行升序排序, 拼接为 a=1&b=2, 只对有值字段进行排序 (空值和空字符不参与加签)
-5. 对排序结果后增加 nonce=123, 排序后为 a=1&b=2&nonce=123 
-6. 使用私钥对 a=1&b=2&nonce=123 进行加签, 放入请求体中 sign 字段
-7. 平台收到请求后会对  nonce 和 sign 进行验签, 验证失败直接返回失败
+1. 生成 13 位毫秒时间戳 `timestamp`。平台允许请求时间与平台当前时间相差不超过 5 分钟。
+2. 为每次请求生成随机字符串 `nonce`。同一个 `appId` 在 5 分钟内不得重复使用相同 `nonce`。
+3. 取 JSON 请求体中的第一层非空字段，按照字段名 ASCII 升序排列。
+4. 按照 `key=value` 格式使用 `&` 连接字段。
+5. 在所有业务字段之后追加 `nonce={nonce}`。
+6. 使用商户 PKCS8 私钥和 `SHA1WithRSA` 对签名原文加签，并将结果进行 Base64 编码。
+7. 将签名结果放入请求头 `Authorization`。
 
-平台回调商户会进行以上操作, 建议商户对参数进行加签
+`Authorization` 不放在 JSON 请求体中，也不参与签名原文排序。
 
-### 请求格式
+## 签名原文示例
 
-不同接口请求参数不同,但所有请求参数中都应含有 sign 字段
+请求体：
 
-### 请求头
-
-| 字段         | 类型             | 必需 | 长度                                                   | 签名                                      |
-| ------------ | ---------------- | ---- | ------------------------------------------------------ | ----------------------------------------- |
-| Content-Type | application/json | yes  | 固定值.所有请求参数必须为 POST, 数据都必须放在 body 中 |
-| appCode     | String           | yes  | 32                                                     | 分配给商户应用的 code                     |
-| country      | String           | yes  | 2                                                      | MX-墨西哥 PE-秘鲁 CO-哥伦比亚 PK-巴基斯坦 |
-| nonce        | String           | yes  | 32                                                     | 必须为 32 位不重复字符串                  |
-| timestamp    | String           | yes  | 13                                                     | 当前时间戳(毫秒)                          |
-
-### 响应格式
-
-| 字段 | 类型   | 必需 | 描述     |
-| ---- | ------ | ---- | -------- |
-| code | Int    | yes  | 状态码   |
-| msg  | String | yes  | 返回信息 |
-| data | Object | no   | 返回数据 |
-
-```java title=签名示例
-import com.alibaba.fastjson.JSONObject;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
-
-import java.security.KeyFactory;
-import java.security.PrivateKey;
-import java.security.Signature;
-import java.security.spec.PKCS8EncodedKeySpec;
-import java.util.*;
-
-@Slf4j
-public class SignUtils {
-
-    public static void main(String[] args) throws Exception {
-        // 替换成商户私钥
-        String privateKey = "privateKey";
-        String nonce = UUID.randomUUID().toString().replace("-", "");
-
-        // 构建请求参数
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put("merchantOrderNo", "TEST" + 1234567890);
-        jsonObject.put("idCardNumber", "1234567890");
-        jsonObject.put("realName", "TeemoPay");
-        jsonObject.put("amount", "1000");
-        jsonObject.put("callbackUrl", "https://www.teemopay.com");
-        jsonObject.put("paymentType", 1);
-        jsonObject.put("email", "test@gmail.com");
-        jsonObject.put("phone", "3000000000");
-
-        // 计算签名
-        String sign = signature(jsonObject, nonce, privateKey);
-        jsonObject.put("sign", sign);
-
-        log.info("nonce={},timestamp={},requestBody={}", nonce, System.currentTimeMillis(), jsonObject.toJSONString());
-    }
-
-    public static String signature(Map<String, Object> param, String nonce, String privateKey) throws Exception {
-        // 计算SHA-1
-        String signatureStr = paramHandler(param, nonce);
-        log.debug("signatureStr = {}", signatureStr);
-        return sign(signatureStr.getBytes(), privateKey, "SHA1WithRSA");
-    }
-
-
-    public static String sign(byte[] data, String privateKey, String arithmetic) throws Exception {
-        byte[] keyBytes = Base64.getDecoder().decode(privateKey);
-        PKCS8EncodedKeySpec pkcs8KeySpec = new PKCS8EncodedKeySpec(keyBytes);
-        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-        PrivateKey privateK = keyFactory.generatePrivate(pkcs8KeySpec);
-        Signature signature = Signature.getInstance(arithmetic);
-        signature.initSign(privateK);
-        signature.update(data);
-        return Base64.getEncoder().encodeToString(signature.sign());
-    }
-
-    private static String paramHandler(Map<String, Object> param, String nonce) {
-        Map<String, Object> sortedParameters = new TreeMap<>(param);
-        // 构建参数字符串
-        StringBuilder paramStringBuilder = new StringBuilder();
-        for (Map.Entry<String, Object> entry : sortedParameters.entrySet()) {
-            if ("sign".equals(entry.getKey())) {
-                continue;
-            }
-            Object value = entry.getValue();
-            if (Objects.isNull(value) || (value instanceof String && StringUtils.isBlank((String) value))) {
-                continue;
-            }
-            paramStringBuilder.append(entry.getKey()).append("=").append(entry.getValue()).append("&");
-        }
-        // 添加API密钥
-        paramStringBuilder.append("nonce").append("=").append(nonce);
-        return paramStringBuilder.toString();
-    }
-
-    // 验签
-    public static boolean verifySign(Map<String, Object> param, String nonce, String publicKey) {
-        String sign = (String) param.get("sign");
-        if (StringUtils.isBlank(sign)) {
-            log.error("请求参数缺少sign: {}", JSON.toJSONString(param));
-            return false;
-        }
-        try {
-            return verifySha1(paramHandler(param, nonce).getBytes(), publicKey, sign);
-        } catch (Exception e) {
-            log.error("RSA验签异常: {}", JSON.toJSONString(param), e);
-            return false;
-        }
-    }
-
-    public static boolean verifySha1(byte[] data, String publicKey, String sign) throws Exception {
-            X509EncodedKeySpec keySpec = new X509EncodedKeySpec(org.apache.commons.codec.binary.Base64.decodeBase64(publicKey));
-            KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-            PublicKey publicK = keyFactory.generatePublic(keySpec);
-            Signature signature = Signature.getInstance("SHA1WithRSA");
-            signature.initVerify(publicK);
-            signature.update(data);
-            return signature.verify(Base64.decodeBase64(sign));
-        }
+```json
+{
+  "merchantOrderNo": "ORDER202609170001",
+  "transactionAmount": "100",
+  "paymentType": "QR",
+  "description": "test order"
 }
 ```
+
+请求头中的 `nonce`：
+
+```text
+7db2b04d77ad4315a7650ef3b31a82f1
+```
+
+排序并拼接后的签名原文：
+
+```text
+description=test order&merchantOrderNo=ORDER202609170001&paymentType=QR&transactionAmount=100&nonce=7db2b04d77ad4315a7650ef3b31a82f1
+```
+
+空值、`null` 和空字符串不参与签名。数组或对象字段使用请求 JSON 解析后的字符串形式参与拼接，商户侧必须确保生成方式与实际发送内容一致。
+
+## Java 签名示例
+
+```java
+public static String sign(String content, String privateKey) throws Exception {
+    byte[] keyBytes = Base64.getDecoder().decode(privateKey);
+    PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(keyBytes);
+    PrivateKey key = KeyFactory.getInstance("RSA").generatePrivate(keySpec);
+
+    Signature signature = Signature.getInstance("SHA1WithRSA");
+    signature.initSign(key);
+    signature.update(content.getBytes(StandardCharsets.UTF_8));
+    return Base64.getEncoder().encodeToString(signature.sign());
+}
+```
+
+传入方法的私钥应移除 PEM 头尾、空格和换行。
+
+## 完整请求头示例
+
+```http
+Content-Type: application/json
+appId: A2601010001ID001
+timestamp: 1789526400000
+nonce: 7db2b04d77ad4315a7650ef3b31a82f1
+Authorization: BASE64_RSA_SIGNATURE
+```
+
+国家优先由请求域名识别，商户正常接入时不需要发送 `country` 请求头。
+
+## 回调验签与幂等
+
+- 使用 VellPay 平台公钥验证回调签名。
+- 验签规则与请求签名规则保持一致。
+- 回调处理必须以商户订单号或平台订单号实现幂等。
+- 回调验签成功并完成业务处理后，按照对应回调协议返回成功结果。
+- 不应仅依赖回调；未收到回调时应通过查询接口确认最终状态。
+
+## 常见验签失败原因
+
+- 使用了错误环境或错误应用对应的密钥。
+- 私钥包含 PEM 头尾、空格或换行。
+- 字段排序方式不是 ASCII 升序。
+- 空字段参与了签名。
+- `nonce` 与请求头中的值不一致。
+- 签名使用的请求体与最终发送的 JSON 内容不一致。
+- 使用了错误的字符集，应固定为 UTF-8。

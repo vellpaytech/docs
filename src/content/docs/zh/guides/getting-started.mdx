@@ -1,112 +1,67 @@
 ---
-title: 快速开始
-description: 快速开始使用 TeemoPay
+title: 接入指引
+description: VellPay API 调用、订单处理和上线检查说明。
 ---
 
-import { Steps } from "@astrojs/starlight/components";
+## 调用约定
 
-## 简介
+- 所有接口使用 `POST`，请求体格式为 `application/json`。
+- 每次请求必须携带[公共请求头](/zh/guides/request-headers/)。
+- `merchantOrderNo` 必须在商户范围内保持唯一。
+- 请求参数、支付方式和金额规则以对应国家接口页面为准。
+- 接口返回 `code=200` 只代表本次请求处理成功，不代表交易已经成功。
+- 交易结果应结合 `data.status`、查询接口和回调通知确认。
 
-TeemoPay 为跨境商户提供本地化支付能力, 覆盖代收、代付、账户查询、订单查询、回调通知等核心接口, 帮助商户用统一的接入方式对接不同国家和地区的本地支付网络.
+## 订单创建
 
-我们的服务范围不只限于拉丁美洲市场. 当前文档已覆盖拉丁美洲、亚洲和 USDT 等业务场景, 商户可以根据目标市场选择对应国家的 API 文档进行接入. 不同国家的字段规则、银行列表、手机号格式、证件要求和回调字段可能存在差异, 请以对应国家页面为准.
+1. 商户生成唯一的 `merchantOrderNo`。
+2. 根据国家和业务场景选择 `paymentType` 或 `payoutType`。
+3. 按接口文档填写必填参数并生成 `Authorization`。
+4. 保存接口返回的 `tradeNo`，用于问题排查和订单追踪。
+5. 创建请求超时或响应不确定时，先使用原商户订单号查询，不要立即创建新订单。
 
-## 步骤
+## 查询与回调
 
-<Steps>
+- 查询接口使用创建订单时的 `merchantOrderNo`。
+- 回调服务必须实现签名验证和幂等处理。
+- 同一笔订单可能因为网络重试收到多次回调。
+- 回调与主动查询结果不一致时，以平台最终订单状态为准，并联系技术支持核查状态反转。
+- 商户应保存完整的状态变化记录，不要只保存最后一次回调内容。
 
-1. 商务对接
+## 时间与时区
 
-   a. 确认开通国家、业务类型、费率、结算周期和上线计划;
+业务时间使用订单所属国家的当地时间，文本格式统一为 `yyyy-MM-dd HH:mm:ss`。`timestamp` 是鉴权使用的 13 位毫秒时间戳，不使用该文本格式。
 
-   b. 我们为您开通测试商户、应用和对应国家的测试权限;
+| 国家 | 时区 |
+|---|---|
+| 印度尼西亚 | 以国家服务配置为准 |
+| 越南 | `Asia/Ho_Chi_Minh`（GMT+7） |
+| 韩国 | `Asia/Seoul` |
+| 柬埔寨 | `Asia/Phnom_Penh` |
+| 印度 | `Asia/Kolkata` |
+| 哥伦比亚 | `America/Bogota` |
+| 阿根廷 | `America/Argentina/Buenos_Aires` |
+| 巴西 | 以国家服务配置为准 |
 
-   c. 获取测试环境的 `appCode`, 商户后台账号和联调联系人.
+## 公共响应
 
-2. 阅读接入指南
+```json
+{
+  "code": 200,
+  "data": {},
+  "msg": "success",
+  "tid": "trace-id"
+}
+```
 
-   a. 阅读 [操作手册](/zh/guides/operation-manual) 了解商户后台、应用和公钥交换流程;
+业务字段位于 `data`，`code` 非 200 时应以失败处理并记录 `tid`。
 
-   b. 阅读 [创建密钥](/zh/guides/create-keys) 生成商户公私钥, 并完成平台公钥交换;
+## 异常处理
 
-   c. 阅读 [鉴权示例](/zh/guides/authentication) 确认请求头、签名、验签和回调验签规则;
+- 参数错误应根据响应 `msg` 定位具体字段。
+- 网络超时后先查单，避免重复创建订单。
+- 服务器错误可以有限次数重试，并使用指数退避策略。
+- 余额不足、支付方式未配置和商户配置异常不应自动重试。
+- 无法自行处理时，请提供请求时间、环境、国家、`appId`、商户订单号、平台订单号和 `tid`。
 
-   d. 阅读 [时区说明](/zh/guides/timezone) 确认各国家返回时间字段使用的固定时区.
-
-3. 选择国家 API
-
-   a. 根据业务地区进入拉丁美洲、亚洲或 USDT 对应文档;
-
-   b. 先确认支付方式、必填字段、金额规则、手机号/证件格式、银行编码和账户类型;
-
-   c. 按需接入代收、代付、查询和回调接口.
-
-4. 联调验证
-
-   a. 使用测试商户发起创建订单请求, 确认签名、`merchantOrderNo`、`callbackUrl` 和金额格式正确;
-
-   b. 验证订单查询、回调接收、回调验签和幂等处理;
-
-   c. 对各国家特有字段做场景验证, 例如钱包账号、银行账号、手机号前缀、证件类型等.
-
-5. 生产上线
-
-   a. 上线前确认生产商户、生产应用、公钥交换和回调地址已配置完成;
-
-   b. 先进行小流量灰度, 观察创建成功率、支付成功率、回调到达率和代付结果;
-
-   c. 灰度稳定后正式放量, 如需新增国家可按同一接入模式扩展.
-
-</Steps>
-
-## 资源
-
-### 接入指南
-
-- [操作手册](/zh/guides/operation-manual)
-- [更新记录](/zh/guides/changes)
-- [创建密钥](/zh/guides/create-keys)
-- [鉴权示例](/zh/guides/authentication)
-- [时区说明](/zh/guides/timezone)
-- [常见问题](/zh/guides/technical-faq)
-
-### API 文档
-
-拉丁美洲
-
-- [墨西哥](/zh/mexico/payin/create)
-- [秘鲁](/zh/peru/payin/create)
-- [哥伦比亚](/zh/colombia/payin/cashier_create)
-- [巴西](/zh/brazil/payin/create)
-- [智利](/zh/chile/payin/create)
-- [阿根廷](/zh/argentine/payin/create)
-
-亚洲
-
-- [巴基斯坦](/zh/pakistan/payin/cashier_create)
-- [印度](/zh/india/payin/create)
-- [印度尼西亚](/zh/indonesia/payin/create)
-- [柬埔寨](/zh/cambodia/payin/create)
-- [韩国](/zh/korea/payin/create)
-
-USDT
-
-- [USDT](/zh/crypto/payin/create)
-
-### 代收操作流程
-
-<a
-  href="https://www.figma.com/proto/JFs7TlHPFEK2udJAtrh6Hj/Teemopay-Payin-Demo?page-id=0%3A1&node-id=43-2628&p=f&viewport=315%2C288%2C0.02&t=2pmwJfjtumjI0GZM-1&scaling=min-zoom&content-scaling=fixed&starting-point-node-id=43%3A2628"
-  target="_blank"
-  rel="noopener noreferrer"
->
-  - Figma Demo
-</a>
-
-<a
-  href="https://drive.google.com/drive/folders/1PPM2Dq_-7-ITnLxPVxaTtEZ9R5u71hb_?usp=sharing"
-  target="_blank"
-  rel="noopener noreferrer"
->
-  - 支付指引视频
-</a>
+完整错误说明参见[公共错误码](/zh/guides/error-codes/)。

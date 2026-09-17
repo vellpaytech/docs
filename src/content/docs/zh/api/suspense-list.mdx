@@ -1,0 +1,36 @@
+---
+title: 阿根廷悬账列表
+description: 查询阿根廷商户近 30 天内的未处理悬账流水。
+---
+import ApiExplorer from '../../../../components/ApiExplorer.astro';
+
+<ApiExplorer country="AR" path="/trade/query/suspenseAccount/orderList" body={{pageSize:500,beginTime:"2026-09-01 00:00:00",endTime:"2026-09-17 23:59:59"}} />
+
+<p class="endpoint-lead">本接口仅对阿根廷开放，时间使用阿根廷当地时间。</p>
+
+<div class="method-path"><strong>POST</strong><code>/trade/query/suspenseAccount/orderList</code></div>
+
+## 请求参数
+| 字段 | 类型 | 必填 | 说明 |
+|---|---|---|---|
+| `pageIndex` | String | 否 | 下一页游标，第一页无需传入 |
+| `pageSize` | Integer | 否 | 默认 500，最大 1000 |
+| `beginTime` | String | 是 | 开始时间，格式 `yyyy-MM-dd HH:mm:ss` |
+| `endTime` | String | 是 | 结束时间，格式 `yyyy-MM-dd HH:mm:ss` |
+
+## 响应参数
+| 字段 | 类型 | 必填 | 最大长度 | 说明 |
+|---|---|---|---:|---|
+| `code` | int | 是 | - | 状态码，非 200 代表异常 |
+| `data` | Object | 是 | - | 响应体 |
+| `data.pageIndex` | String | 否 | - | 下一页查询点位 |
+| `data.records` | List | 是 | - | 悬账记录集合 |
+| `data.records.voucherId` | String | 是 | - | 凭证 ID |
+| `data.records.suspenseAmount` | String | 是 | - | 悬账金额 |
+| `data.records.theoreticalAmount` | String | 是 | - | 理论到账金额 |
+| `data.records.userIdCard` | String | 否 | - | 用户证件号 |
+| `data.records.userName` | String | 否 | - | 用户姓名 |
+| `data.records.suspenseCallbackTime` | String | 否 | - | 悬账回调时间（阿根廷当地时间） |
+| `data.records.cvu` | String | 否 | - | CVU |
+| `msg` | String | 否 | - | 异常信息 |
+| `tid` | String | 是 | - | traceId |

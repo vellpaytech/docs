@@ -3,19 +3,19 @@ import type { Props } from "@astrojs/starlight/props";
 ---
 
 <div class="content-panel">
-  <div class="sl-container max-w-[52rem]"><slot /></div>
+  <div class="sl-container"><slot /></div>
 </div>
 
 <style>
   .content-panel {
-    padding: 1.5rem var(--sl-content-pad-x);
+    padding: 2rem var(--sl-content-pad-x) 5rem;
   }
   .content-panel + .content-panel {
     border-top: 1px solid var(--sl-color-hairline);
   }
-  /* .sl-container {
-    max-width: var(--sl-content-width);
-  } */
+  .sl-container {
+    max-width: 88rem;
+  }
 
   .sl-container > :global(* + *) {
     margin-top: 1.5rem;
