@@ -2,7 +2,7 @@ import { defineConfig } from "astro/config";
 import starlight from "@astrojs/starlight";
 import tailwind from "@astrojs/tailwind";
 
-const base = "/docs";
+const base = "/vellpaydocs";
 
 const api = (label, slug) => ({ label, slug });
 const commonApis = [
