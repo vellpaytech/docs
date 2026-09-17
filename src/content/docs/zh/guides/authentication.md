@@ -18,14 +18,12 @@ description: VellPay RSA 签名、请求验签和回调验签规则。
 ## 请求鉴权流程
 
 1. 生成 13 位毫秒时间戳 `timestamp`。平台允许请求时间与平台当前时间相差不超过 5 分钟。
-2. 为每次请求生成随机字符串 `nonce`。同一个 `appId` 在 5 分钟内不得重复使用相同 `nonce`。
-3. 取 JSON 请求体中的第一层非空字段，按照字段名 ASCII 升序排列。
-4. 按照 `key=value` 格式使用 `&` 连接字段。
-5. 在所有业务字段之后追加 `nonce={nonce}`。
+2. 为每次请求生成随机字符串 `nonce` 同一个 `appId` 在24小时不得重复使用相同 `nonce`。
+3. 请求体字段名按照 ASCII 进行升序排序, 拼接为 a=1&b=2, 只对有值字段进行排序 (空值和空字符不参与加签)
+4. 对排序结果后增加 nonce=123, 排序后为 a=1&b=2&nonce=123
 6. 使用商户 PKCS8 私钥和 `SHA1WithRSA` 对签名原文加签，并将结果进行 Base64 编码。
-7. 将签名结果放入请求头 `Authorization`。
+7. 将签名结果放入请求头 `authorization`。
 
-`Authorization` 不放在 JSON 请求体中，也不参与签名原文排序。
 
 ## 签名原文示例
 
@@ -74,11 +72,10 @@ public static String sign(String content, String privateKey) throws Exception {
 ## 完整请求头示例
 
 ```http
-Content-Type: application/json
 appId: A2601010001ID001
 timestamp: 1789526400000
 nonce: 7db2b04d77ad4315a7650ef3b31a82f1
-Authorization: BASE64_RSA_SIGNATURE
+authorization: BASE64_RSA_SIGNATURE
 ```
 
 国家优先由请求域名识别，商户正常接入时不需要发送 `country` 请求头。

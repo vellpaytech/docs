@@ -14,7 +14,7 @@ VellPay 使用响应字段 `code` 表示本次接口调用结果。`code=200` �
 | `401` | Header timestamp not found | 请求头缺少合法的 13 位毫秒时间戳 |
 | `401` | Header timestamp expire | 请求时间与平台时间相差超过 5 分钟，请校准服务器时间 |
 | `401` | Nonce verify fail | `nonce` 已使用或不合法，请生成新的随机字符串 |
-| `401` | authorization verification failed | 检查签名原文、商户私钥、参数排序和 `Authorization` |
+| `401` | authorization verification failed | 检查签名原文、商户私钥、参数排序和 `authorization` |
 | `401` | app not set merchant public key | 当前应用未配置商户公钥，请先完成公钥交换 |
 | `413` | json parse error | 请求体不是合法 JSON |
 | `415` | body empty | 请求体为空 |
@@ -63,5 +63,5 @@ VellPay 使用响应字段 `code` 表示本次接口调用结果。`code=200` �
 ```
 
 :::tip
-出现未知错误时，请保存完整请求、响应、请求时间、`appId`、商户订单号和 `tid`。不要向技术支持发送商户私钥或完整 `Authorization`。
+出现未知错误时，请保存完整请求、响应、请求时间、`appId`、商户订单号和 `tid`。不要向技术支持发送商户私钥或完整 `authorization`。
 :::

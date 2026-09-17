@@ -3,13 +3,13 @@ title: 创建密钥
 description: 生成并配置 VellPay 接口使用的 RSA 密钥对。
 ---
 
-## 操作步骤
+# 操作步骤
 
 1. 生成一组商户 RSA 公钥和私钥。
 2. 在 VellPay 商户后台填写商户公钥，并保存平台公钥。
 3. 使用商户私钥为请求签名，使用平台公钥验证回调签名。
 
-## 第一步：生成商户密钥对
+# 第一步：生成商户密钥对
 
 VellPay 使用 RSA 密钥完成请求签名和响应验签。请在可信设备上使用 OpenSSL 生成 PKCS8 私钥及对应公钥。
 
@@ -54,4 +54,4 @@ Windows 用户可在 CMD 或 PowerShell 中执行相同命令；macOS 用户如�
 
 ## 第三步：接入鉴权
 
-完成密钥交换后，根据[接口鉴权](/zh/guides/authentication/)生成请求头中的 `Authorization`，并使用平台公钥验证响应及回调签名。
+完成密钥交换后，根据[接口鉴权](/zh/guides/authentication/)生成请求头中的 `authorization`，并使用平台公钥验证响应及回调签名。

@@ -32,7 +32,7 @@ description: VellPay API 调用、订单处理和上线检查说明。
 
 1. 商户生成唯一的 `merchantOrderNo`。
 2. 根据国家和业务场景选择 `paymentType` 或 `payoutType`。
-3. 按接口文档填写必填参数并生成 `Authorization`。
+3. 按接口文档填写必填参数并生成 `authorization`。
 4. 保存接口返回的 `tradeNo`，用于问题排查和订单追踪。
 5. 创建请求超时或响应不确定时，先使用原商户订单号查询，不要立即创建新订单。
 

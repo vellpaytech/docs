@@ -45,7 +45,7 @@ const testEnvironment = testEnvironments[country] ?? "";
             <label>appId<input data-header="appId" autocomplete="off" placeholder="TEST_APP_ID" /></label>
             <label>nonce<input data-header="nonce" autocomplete="off" /></label>
             <label>timestamp<input data-header="timestamp" autocomplete="off" /></label>
-            <label>Authorization<input data-header="Authorization" type="password" autocomplete="off" placeholder="仅保留在当前页面" /></label>
+            <label>authorization<input data-header="authorization" type="password" autocomplete="off" placeholder="仅保留在当前页面" /></label>
           </div>
           <h3>Body Params <small>application/json</small></h3>
           <textarea data-body spellcheck="false">{initialBody}</textarea>
@@ -90,7 +90,7 @@ const testEnvironment = testEnvironments[country] ?? "";
       return {
         base: value("[data-base-url]").replace(/\/$/, ""), path: this.getAttribute("data-path") || "",
         method: this.getAttribute("data-method") || "POST",
-        headers: { "Content-Type": "application/json", appId: value('[data-header="appId"]'), nonce: value('[data-header="nonce"]'), timestamp: value('[data-header="timestamp"]'), Authorization: value('[data-header="Authorization"]') },
+        headers: { "Content-Type": "application/json", appId: value('[data-header="appId"]'), nonce: value('[data-header="nonce"]'), timestamp: value('[data-header="timestamp"]'), authorization: value('[data-header="authorization"]') },
         body: value("[data-body]"),
       };
     }
