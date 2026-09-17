@@ -14,6 +14,7 @@
     "@astrojs/starlight": "^0.29.3",
     "@astrojs/starlight-tailwind": "^2.0.3",
     "@astrojs/tailwind": "^5.1.5",
+    "@lucide/astro": "^1.47.0",
     "@vercel/speed-insights": "^1.2.0",
     "astro": "^4.16.19",
     "astro-loading-indicator": "^0.6.1",

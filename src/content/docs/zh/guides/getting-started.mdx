@@ -59,19 +59,6 @@ description: VellPay API 调用、订单处理和上线检查说明。
 | 阿根廷 | `America/Argentina/Buenos_Aires` |
 | 巴西 | 以国家服务配置为准 |
 
-## 公共响应
-
-```json
-{
-  "code": 200,
-  "data": {},
-  "msg": "success",
-  "tid": "trace-id"
-}
-```
-
-业务字段位于 `data`，`code` 非 200 时应以失败处理并记录 `tid`。
-
 ## 异常处理
 
 - 参数错误应根据响应 `msg` 定位具体字段。

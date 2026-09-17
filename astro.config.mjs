@@ -34,10 +34,11 @@ export default defineConfig({
       sidebar: [
         { label: "开发指南", items: [
           { label: "快速开始", slug: "guides/quick-start" },
-          { label: "创建密钥", slug: "guides/create-keys" },
           { label: "接入指引", slug: "guides/getting-started" },
-          { label: "公共请求头", slug: "guides/request-headers" },
+          { label: "创建密钥", slug: "guides/create-keys" },
           { label: "接口鉴权", slug: "guides/authentication" },
+          { label: "公共请求头", slug: "guides/request-headers" },
+          { label: "公共响应", slug: "guides/common-response" },
           { label: "公共错误码", slug: "guides/error-codes" },
         ]},
         { label: "亚洲", items: [
@@ -58,7 +59,10 @@ export default defineConfig({
           country("🇧🇷 巴西", "brazil"),
         ]},
       ],
-      components: { ContentPanel: "./src/components/ContentPanel.astro" },
+      components: {
+        ContentPanel: "./src/components/ContentPanel.astro",
+        Sidebar: "./src/components/Sidebar.astro",
+      },
       customCss: ["./src/tailwind.css"],
     }),
     tailwind({ applyBaseStyles: false }),

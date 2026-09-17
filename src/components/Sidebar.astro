@@ -1,129 +1,146 @@
 ---
-import Default from "@astrojs/starlight/components/Sidebar.astro";
 import type { Props } from "@astrojs/starlight/props";
-import { AstroError } from "astro/errors";
-import config from "virtual:starlight-sidebar-topics/config";
+import {
+  ArrowDownLeft,
+  ArrowUpRight,
+  ChevronDown,
+  ChevronRight,
+  CreditCard,
+  FileSearch,
+  Globe2,
+  Layers3,
+  ListFilter,
+  Map,
+  MapPinned,
+  RefreshCw,
+  Rocket,
+  Search,
+  ShieldCheck,
+  UserRoundCheck,
+  WalletCards,
+} from "@lucide/astro";
+import { countryGroups } from "../data/countries";
 
-import TopicNav from "./TopicNav.astro";
+const { slug } = Astro.props as Props;
+const base = import.meta.env.BASE_URL;
+const parts = slug.split("/").filter(Boolean);
+const localizedParts = parts[0] === "zh" ? parts.slice(1) : parts;
+const currentCountry = localizedParts[0] ?? "";
+const currentPath = `/${localizedParts.join("/")}`;
+const href = (path: string) => `${base}/zh${path}/`;
 
-const { entry, sidebar, slug } = Astro.props;
+const guideSections = [
+  { label: "开始接入", icon: Rocket, links: [{ label: "快速开始", path: "/guides/quick-start" }, { label: "接入指引", path: "/guides/getting-started" }] },
+  { label: "API 安全", icon: ShieldCheck, links: [{ label: "创建密钥", path: "/guides/create-keys" }, { label: "接口鉴权", path: "/guides/authentication" }] },
+  { label: "公共参数", icon: Layers3, links: [
+    { label: "公共请求头", path: "/guides/request-headers" },
+    { label: "公共响应", path: "/guides/common-response" },
+    { label: "公共错误码", path: "/guides/error-codes" },
+  ] },
+];
 
-let currentSidebar = sidebar;
-let currentTopic: Topic | undefined = undefined;
-
-if (entry["data"].template !== "splash") {
-  currentTopic = getCurrentTopic(config, sidebar, slug, entry);
-  if (!currentTopic) {
-    throw new AstroError(
-      `Failed to find the topic for the \`${slug}\` page.`,
-      `Either include this page in the sidebar configuration of the desired topic using the \`items\` property or associate an unlisted page with a topic using the \`topic\` frontmatter field.`,
-    );
-  }
-  currentSidebar = currentTopic.sidebar;
-  if (isRegionalTopic(currentTopic.config)) {
-    const currentCountrySidebar = getCurrentSidebarTopic(currentTopic.sidebar);
-    if (currentCountrySidebar) currentSidebar = currentCountrySidebar.entries;
-  }
-}
-
-function getCurrentTopic(
-  topicConfig: typeof config,
-  sidebarEntries: SidebarEntry[],
-  currentSlug: string,
-  currentEntry: Props["entry"],
-): Topic | undefined {
-  const topicId = typeof currentEntry.data.topic === "string" ? currentEntry.data.topic : undefined;
-  if (topicId) return getTopicById(topicConfig, sidebarEntries, topicId);
-
-  const topicFromSlug = getTopicFromSlug(topicConfig, sidebarEntries, currentSlug);
-  if (topicFromSlug) return topicFromSlug;
-
-  const currentSidebarTopic = getCurrentSidebarTopic(sidebarEntries);
-  if (!currentSidebarTopic) return undefined;
-
-  const currentTopicConfig = topicConfig[Number.parseInt(currentSidebarTopic.label, 10)];
-  if (!currentTopicConfig) return undefined;
-
-  return { config: currentTopicConfig, sidebar: currentSidebarTopic.entries };
-}
-
-function getTopicFromSlug(topicConfig: typeof config, sidebarEntries: SidebarEntry[], currentSlug: string): Topic | undefined {
-  let groupTopicIndex = -1;
-  const slugLocale = getLocaleFromSlug(currentSlug);
-
-  for (const topic of topicConfig) {
-    if (topic.type === "group") groupTopicIndex++;
-
-    if (!/^https?:\/\//.test(topic.link) && arePathnamesEqual(getLocalizedSlug(stripSlashes(topic.link), slugLocale), currentSlug) && groupTopicIndex !== -1) {
-      const sidebarTopic = sidebarEntries[groupTopicIndex];
-      if (sidebarTopic?.type === "group") return { config: topic, sidebar: sidebarTopic.entries };
-      break;
-    }
-  }
-
-  return undefined;
-}
-
-function getTopicById(topicConfig: typeof config, sidebarEntries: SidebarEntry[], id: string): Topic | undefined {
-  let groupTopicIndex = -1;
-
-  for (const topic of topicConfig) {
-    if (topic.type === "group") groupTopicIndex++;
-
-    if (topic.type === "group" && "id" in topic && topic.id === id) {
-      const sidebarTopic = sidebarEntries[groupTopicIndex];
-      if (sidebarTopic?.type === "group") return { config: topic, sidebar: sidebarTopic.entries };
-      break;
-    }
-  }
-
-  return undefined;
-}
-
-function getCurrentSidebarTopic(sidebarEntries: SidebarEntry[]) {
-  return sidebarEntries.find((topic) => topic.type === "group" && Boolean(getCurrentSidebarEntry(topic.entries))) as SidebarTopic | undefined;
-}
-
-function getCurrentSidebarEntry(sidebarEntries: SidebarEntry[]): SidebarEntry | undefined {
-  return sidebarEntries.find((sidebarEntry) => {
-    if (sidebarEntry.type === "link") return sidebarEntry.isCurrent;
-    return getCurrentSidebarEntry(sidebarEntry.entries);
-  });
-}
-
-function isRegionalTopic(topic: (typeof config)[number]) {
-  return topic.type === "group" && "id" in topic && (topic.id === "asia" || topic.id === "latin-america");
-}
-
-function getLocaleFromSlug(slug: string) {
-  const [maybeLocale] = stripSlashes(slug).split("/");
-  return maybeLocale === "en" || maybeLocale === "zh" ? maybeLocale : undefined;
-}
-
-function getLocalizedSlug(slug: string, locale: string | undefined) {
-  return locale ? `${locale}/${slug}` : slug;
-}
-
-function arePathnamesEqual(left: string, right: string) {
-  return stripSlashes(left) === stripSlashes(right);
-}
-
-function stripSlashes(value: string) {
-  return value.replace(/^\/+|\/+$/g, "");
-}
-
-type SidebarEntry = Props["sidebar"][number];
-
-interface SidebarTopic {
-  label: string;
-  entries: SidebarEntry[];
-}
-
-interface Topic {
-  config: (typeof config)[number];
-  sidebar: SidebarEntry[];
-}
+const countryLinks = (country: (typeof countryGroups)[number]["countries"][number]) => [
+  { label: "创建代收", icon: ArrowDownLeft, path: `/${country.slug}/payin/create` },
+  { label: "查询代收", icon: Search, path: `/${country.slug}/payin/query` },
+  { label: "创建代付", icon: ArrowUpRight, path: `/${country.slug}/payout/create` },
+  { label: "查询代付", icon: Search, path: `/${country.slug}/payout/query` },
+  { label: "创建收银台", icon: CreditCard, path: `/${country.slug}/checkout/create` },
+  { label: "余额查询", icon: WalletCards, path: `/${country.slug}/inquire/balance` },
+  ...(country.slug === "cambodia" ? [
+    { label: "创建 KYC", icon: UserRoundCheck, path: "/cambodia/kyc/create" },
+    { label: "查询 KYC", icon: Search, path: "/cambodia/kyc/query" },
+  ] : []),
+  ...(country.slug === "argentina" ? [
+    { label: "悬账列表", icon: ListFilter, path: "/argentina/suspense/list" },
+    { label: "凭证查询", icon: FileSearch, path: "/argentina/suspense/query" },
+    { label: "悬账补单", icon: RefreshCw, path: "/argentina/suspense/reorder" },
+  ] : []),
+];
 ---
 
-{entry["data"].template !== "splash" && currentTopic && <TopicNav current={currentTopic.config} currentSlug={slug} />}
-<Default {...Astro.props} sidebar={currentSidebar}><slot /></Default>
+<nav class="vp-sidebar" aria-label="文档导航">
+  <div class="guide-sections">
+    {guideSections.map((section) => {
+      const active = section.links.some((link) => currentPath === link.path);
+      const SectionIcon = section.icon;
+      return <details class="guide-section" open={active}>
+        <summary class:list={{ active }}><SectionIcon class="nav-icon" size={18} stroke-width={1.8} aria-hidden="true" />{section.label}<span class="chevrons"><ChevronRight size={18} stroke-width={1.8} /><ChevronDown size={18} stroke-width={1.8} /></span></summary>
+        <div class="guide-links">{section.links.map((link) => <a class:list={{ current: currentPath === link.path }} href={href(link.path)}>{link.label}</a>)}</div>
+      </details>;
+    })}
+  </div>
+
+  <div class="countries-heading"><Globe2 size={18} stroke-width={1.8} aria-hidden="true" />国家与地区</div>
+  {countryGroups.map((group) => {
+    const regionActive = group.countries.some((country) => country.slug === currentCountry);
+    return <section class:list={{ region: true, active: regionActive }}>
+      <div class="region-label">{group.id === "asia" ? <Map size={18} stroke-width={1.8} aria-hidden="true" /> : <MapPinned size={18} stroke-width={1.8} aria-hidden="true" />}<b>{group.label}</b><small>{group.countries.length} 个国家</small></div>
+      <div class="country-list">
+        {group.countries.map((country) => {
+          const countryActive = country.slug === currentCountry;
+          return <details class="vp-country" data-country={country.slug} open={countryActive}>
+            <summary class:list={{ active: countryActive }}>
+              <img class="flag" src={`https://flagcdn.com/w40/${country.code.toLowerCase()}.png`} alt={`${country.name}国旗`} width="24" height="18" loading="lazy" /><span class="country-name">{country.name}</span><small>{country.currency}</small><span class="chevrons"><ChevronRight size={18} stroke-width={1.8} /><ChevronDown size={18} stroke-width={1.8} /></span>
+            </summary>
+            <div class="country-pages">
+              {countryLinks(country).map((link) => {
+                const LinkIcon = link.icon;
+                return <a class:list={{ current: currentPath === link.path }} href={href(link.path)}><LinkIcon size={16} stroke-width={1.8} aria-hidden="true" />{link.label}</a>;
+              })}
+            </div>
+          </details>;
+        })}
+      </div>
+    </section>;
+  })}
+</nav>
+
+<script>
+  document.querySelectorAll(".vp-sidebar").forEach((sidebar) => {
+    sidebar.querySelectorAll(".vp-country").forEach((country) => {
+      country.addEventListener("toggle", () => {
+        if (!(country instanceof HTMLDetailsElement) || !country.open) return;
+        sidebar.querySelectorAll(".vp-country[open]").forEach((other) => {
+          if (other !== country && other instanceof HTMLDetailsElement) other.open = false;
+        });
+      });
+    });
+  });
+</script>
+
+<style>
+  .vp-sidebar { color:var(--sl-color-gray-2); font-size:.9rem; padding:.35rem .4rem 2rem; }
+  details { margin:0; }
+  summary { align-items:center; border-radius:.55rem; cursor:pointer; display:flex; gap:10px; list-style:none; min-height:2.35rem; padding:.42rem .55rem; }
+  summary::-webkit-details-marker { display:none; }
+  summary:hover { color:#0f766e; }
+  .guide-section summary { color:var(--sl-color-white); font-weight:680; }
+  .guide-section summary.active { color:var(--sl-color-accent-high); }
+  :global(.nav-icon),.countries-heading :global(svg),.region-label :global(svg),.chevrons :global(svg) { color:#7890a3; flex:0 0 18px; height:18px; stroke-width:1.8; width:18px; }
+  summary:hover :global(.nav-icon),summary:hover .chevrons :global(svg),.region-label:hover :global(svg) { color:#0f766e; }
+  summary.active :global(.nav-icon),summary.active .chevrons :global(svg) { color:var(--sl-color-accent); }
+  .chevrons { display:grid; height:18px; margin-left:auto; place-items:center; width:18px; }
+  .chevrons :global(svg) { grid-area:1/1; }.chevrons :global(svg:last-child) { display:none; }details[open]>summary .chevrons :global(svg:first-child) { display:none; }details[open]>summary .chevrons :global(svg:last-child) { display:block; }
+  .guide-links,.country-pages { display:grid; padding:.15rem 0 .35rem 2.35rem; }
+  .guide-links a,.country-pages a { border-left:1px solid var(--sl-color-hairline); color:var(--sl-color-gray-3); line-height:1.35; padding:.42rem .7rem; text-decoration:none; }
+  .guide-links a:hover,.country-pages a:hover { color:var(--sl-color-white); }
+  .guide-links a.current { border-left-color:var(--sl-color-accent); color:var(--sl-color-accent-high); font-weight:650; }
+  .countries-heading { align-items:center; border-top:1px solid var(--sl-color-hairline); color:var(--sl-color-gray-3); display:flex; font-size:.75rem; font-weight:750; gap:10px; letter-spacing:.08em; margin:1rem .45rem .55rem; padding-top:1rem; text-transform:uppercase; }
+  .region { border-left:2px solid transparent; margin:.25rem 0 .7rem; }
+  .region.active { border-left-color:color-mix(in srgb,var(--sl-color-accent) 55%,transparent); }
+  .region-label { align-items:center; color:var(--sl-color-gray-2); display:flex; gap:10px; min-height:2.2rem; padding:.35rem .55rem; }
+  .region.active .region-label :global(svg) { color:var(--sl-color-accent); }.region-label b { color:var(--sl-color-white); font-weight:680; }.region-label small { color:var(--sl-color-gray-3); font-size:.68rem; margin-left:auto; }
+  .country-list { margin-left:.45rem; }
+  .vp-country>summary { position:relative; }
+  .vp-country>summary.active { color:var(--sl-color-accent-high); font-weight:720; }
+  .vp-country>summary.active::before { background:var(--sl-color-accent); border-radius:2px; content:""; height:1.15rem; left:-.48rem; position:absolute; width:2px; }
+  .flag { border-radius:2px; height:18px; object-fit:cover; width:24px; }.country-name { color:var(--sl-color-white); }.vp-country summary small { color:var(--sl-color-gray-3); font-size:.68rem; margin-left:auto; }.vp-country summary .chevrons { margin-left:0; }
+  .country-pages { padding-left:1.8rem; }
+  .country-pages a { align-items:center; display:flex; gap:10px; }
+  .country-pages a :global(svg) { color:#7890a3; flex:0 0 16px; height:16px; stroke-width:1.8; width:16px; }
+  .country-pages a:hover :global(svg) { color:#0f766e; }.country-pages a.current :global(svg) { color:var(--sl-color-accent); }
+  .country-pages a.current { background:color-mix(in srgb,var(--sl-color-accent-low) 62%,transparent); border-left-color:var(--sl-color-accent); border-radius:0 .45rem .45rem 0; color:var(--sl-color-accent-high); font-weight:680; }
+  :global([data-theme="light"]) .guide-section summary,:global([data-theme="light"]) .region-label b,:global([data-theme="light"]) .country-name { color:#18382a; }
+  :global([data-theme="light"]) .guide-links a:hover,:global([data-theme="light"]) .country-pages a:hover { color:#0f766e; }
+  @media(max-width:50rem) { .vp-sidebar { padding-bottom:1rem; } }
+</style>
