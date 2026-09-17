@@ -1,0 +1,67 @@
+---
+title: 代付查询
+description: 使用商户订单号查询代付订单。
+---
+import ApiExplorer from '../../../../../components/ApiExplorer.astro';
+
+<ApiExplorer country="AR" path="/trade/payout/query" body={{merchantOrderNo:"PAYOUT202609170001"}} />
+
+<p class="endpoint-lead">查询代付状态、费用、完成时间和退款明细。</p>
+
+<div class="method-path"><strong>POST</strong><code>/trade/payout/query</code></div>
+
+## 请求参数
+| 字段 | 类型 | 必填 | 最大长度 | 说明 |
+|---|---|---|---:|---|
+| `merchantOrderNo` | String | 是 | 32 | 商户订单号 |
+
+## 请求示例
+
+```json
+{
+  "merchantOrderNo": "PAYOUT202609170001"
+}
+```
+
+## 响应参数
+| 字段 | 类型 | 必填 | 最大长度 | 说明 |
+|---|---|---|---:|---|
+| `code` | int | 是 | - | 状态码，非 200 代表异常 |
+| `data` | Object | 是 | - | 响应体 |
+| `data.merchantOrderNo` | String | 是 | 32 | 商户订单号 |
+| `data.tradeNo` | String | 是 | 32 | 平台单号 |
+| `data.transactionAmount` | String | 是 | - | 付款金额 |
+| `data.payoutType` | String | 是 | 24 | 代付方式 |
+| `data.status` | String | 是 | 20 | 订单状态 |
+| `data.failMsg` | String | 否 | 24 | 订单失败原因 |
+| `data.serviceAmount` | String | 否 | - | 服务费用 |
+| `data.serviceRate` | String | 否 | - | 服务费率 |
+| `data.immService` | String | 否 | - | 固收 |
+| `data.completeTime` | String | 否 | - | 完成时间（国家当地时间） |
+| `data.totalRefundAmount` | String | 否 | - | 退款总金额 |
+| `data.refundDetails` | Array | 否 | - | 退款明细集合 |
+| `data.refundDetails.refundNo` | String | 否 | 32 | 退款单号 |
+| `data.refundDetails.refundAmount` | String | 否 | - | 退款金额 |
+| `data.refundDetails.refundTime` | String | 否 | - | 退款时间（国家当地时间） |
+| `msg` | String | 否 | - | 异常信息 |
+| `tid` | String | 是 | - | traceId |
+
+## 响应示例
+
+```json
+{
+  "code": 200,
+  "data": {
+    "merchantOrderNo": "PAYOUT202609170001",
+    "tradeNo": "VP20260917000002",
+    "transactionAmount": "100.00",
+    "payoutType": "PAYOUT_TYPE",
+    "status": "SUCCESS",
+    "serviceAmount": "1.00",
+    "completeTime": "2026-09-17 15:30:00",
+    "totalRefundAmount": "0"
+  },
+  "msg": "success",
+  "tid": "747bbf80261844ed85b809212aab0d81"
+}
+```

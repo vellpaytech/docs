@@ -1,0 +1,48 @@
+---
+title: 柬埔寨 KYC 查询
+description: 查询柬埔寨用户的 KYC 状态。
+---
+import ApiExplorer from '../../../../../components/ApiExplorer.astro';
+
+<ApiExplorer country="KH" path="/trade/kyc/query" body={{userPhone:"12345678"}} />
+
+<p class="endpoint-lead">本接口仅对柬埔寨开放。</p>
+
+<div class="method-path"><strong>POST</strong><code>/trade/kyc/query</code></div>
+
+## 请求参数
+| 字段 | 类型 | 必填 | 长度 | 说明 |
+|---|---|---|---:|---|
+| `userPhone` | String | 是 | 8～9 | 柬埔寨本地手机号，不含国家区号 |
+
+## 请求示例
+
+```json
+{
+  "userPhone": "12345678"
+}
+```
+
+## 响应参数
+| 字段 | 类型 | 必填 | 最大长度 | 说明 |
+|---|---|---|---:|---|
+| `code` | int | 是 | - | 状态码，非 200 代表异常 |
+| `data` | Object | 是 | - | 响应体 |
+| `data.authenticationStatus` | String | 是 | 32 | 认证状态 |
+| `data.failMsg` | String | 否 | 20 | 失败原因 |
+| `msg` | String | 否 | - | 异常信息 |
+| `tid` | String | 是 | - | traceId |
+
+## 响应示例
+
+```json
+{
+  "code": 200,
+  "data": {
+    "authenticationStatus": "SUCCESS",
+    "failMsg": null
+  },
+  "msg": "success",
+  "tid": "747bbf80261844ed85b809212aab0d81"
+}
+```

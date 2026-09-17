@@ -1,0 +1,73 @@
+---
+title: 代付创建
+description: 创建一笔 VellPay 代付订单。
+---
+import ApiExplorer from '../../../../../components/ApiExplorer.astro';
+
+<ApiExplorer country="IN" path="/trade/payout/create" body={{merchantOrderNo:"PAYOUT202609170001",transactionAmount:"100",payoutType:"PAYOUT_TYPE",userName:"TEST USER",bankCode:"BANK_CODE",bankAccountNo:"1234567890",payoutCallbackUrl:"https://merchant.example/callback"}} />
+
+<p class="endpoint-lead">向指定银行账户或钱包发起代付，账户类型由字符串型 payoutType 映射。</p>
+
+<div class="method-path"><strong>POST</strong><code>/trade/payout/create</code></div>
+
+## 请求参数
+| 字段 | 类型 | 必填 | 最大长度 | 说明 |
+|---|---|---|---:|---|
+| `merchantOrderNo` | String | 是 | 32 | 商户订单号 |
+| `transactionAmount` | String | 是 | 20 | 付款金额，整数（保留 2 位小数） |
+| `payoutType` | String | 是 | 20 | 代付方式 |
+| `idType` | String | 否 | 50 | 用户证件类型 |
+| `userIdCard` | String | 否 | 32 | 用户证件号码 |
+| `userName` | String | 是 | 64 | 用户姓名 |
+| `userPhone` | String | 否 | 20 | 用户手机号 |
+| `userEmail` | String | 否 | 50 | 用户邮箱 |
+| `bankCode` | String | 是 | 20 | 银行编码 |
+| `bankAccountNo` | String | 是 | 50 | 收款账户 |
+| `description` | String | 是 | 100 | 说明 |
+| `payoutCallbackUrl` | String | 否 | 200 | 代付回调地址 |
+
+<div class="country-note">VellPay 不对外暴露老接口的 <code>bankName</code> 字段。</div>
+
+## 请求示例
+
+```json
+{
+  "merchantOrderNo": "PAYOUT202609170001",
+  "transactionAmount": "100.00",
+  "payoutType": "PAYOUT_TYPE",
+  "userName": "TEST USER",
+  "bankCode": "BANK_CODE",
+  "bankAccountNo": "1234567890",
+  "payoutCallbackUrl": "https://merchant.example/callback"
+}
+```
+
+## 响应参数
+| 字段 | 类型 | 必填 | 最大长度 | 说明 |
+|---|---|---|---:|---|
+| `code` | int | 是 | - | 状态码，非 200 代表异常 |
+| `data` | Object | 是 | - | 响应体 |
+| `data.merchantOrderNo` | String | 是 | 32 | 商户订单号 |
+| `data.tradeNo` | String | 是 | 32 | 平台单号 |
+| `data.transactionAmount` | String | 是 | - | 付款金额 |
+| `data.status` | String | 是 | 24 | 订单状态 |
+| `data.payoutType` | String | 是 | 24 | 代付方式 |
+| `msg` | String | 否 | - | 异常信息 |
+| `tid` | String | 是 | - | traceId |
+
+## 响应示例
+
+```json
+{
+  "code": 200,
+  "data": {
+    "merchantOrderNo": "PAYOUT202609170001",
+    "tradeNo": "VP20260917000002",
+    "transactionAmount": "100.00",
+    "status": "PROCESSING",
+    "payoutType": "PAYOUT_TYPE"
+  },
+  "msg": "success",
+  "tid": "747bbf80261844ed85b809212aab0d81"
+}
+```

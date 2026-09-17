@@ -4,17 +4,16 @@ import tailwind from "@astrojs/tailwind";
 
 const base = "/vellpaydocs";
 
-const api = (label, slug) => ({ label, slug });
-const commonApis = [
-  api("代收创建", "api/payment-create"), api("代收查询", "api/payment-query"),
-  api("代付创建", "api/payout-create"), api("代付查询", "api/payout-query"),
-  api("收银台创建", "api/checkout-create"), api("余额查询", "api/balance"),
-];
-const country = (label, code, extraItems = []) => ({
+const country = (label, slug, extraItems = []) => ({
   label,
   collapsed: true,
   items: [
-    ...commonApis.map(({ label, slug }) => ({ label, link: `/${slug}?country=${code.toUpperCase()}` })),
+    { label: "代收创建", link: `/${slug}/payin/create` },
+    { label: "代收查询", link: `/${slug}/payin/query` },
+    { label: "代付创建", link: `/${slug}/payout/create` },
+    { label: "代付查询", link: `/${slug}/payout/query` },
+    { label: "收银台创建", link: `/${slug}/checkout/create` },
+    { label: "余额查询", link: `/${slug}/inquire/balance` },
     ...extraItems,
   ],
 });
@@ -39,22 +38,24 @@ export default defineConfig({
           { label: "接入指引", slug: "guides/getting-started" },
           { label: "公共请求头", slug: "guides/request-headers" },
           { label: "接口鉴权", slug: "guides/authentication" },
+          { label: "公共错误码", slug: "guides/error-codes" },
         ]},
         { label: "亚洲", items: [
-          country("🇮🇩 印尼", "id"), country("🇻🇳 越南", "vn"), country("🇰🇷 韩国", "kr"),
-          country("🇰🇭 柬埔寨", "kh", [
-            { label: "KYC 创建", slug: "api/kyc-create" },
-            { label: "KYC 查询", slug: "api/kyc-query" },
+          country("🇮🇩 印尼", "indonesia"), country("🇻🇳 越南", "vietnam"), country("🇰🇷 韩国", "korea"),
+          country("🇰🇭 柬埔寨", "cambodia", [
+            { label: "KYC 创建", link: "/cambodia/kyc/create" },
+            { label: "KYC 查询", link: "/cambodia/kyc/query" },
           ]),
-          country("🇮🇳 印度", "in"),
+          country("🇮🇳 印度", "india"),
         ]},
         { label: "拉丁美洲", items: [
-          country("🇨🇴 哥伦比亚", "co"),
-          country("🇦🇷 阿根廷", "ar", [
-            { label: "悬账列表", slug: "api/suspense-list" }, { label: "凭证查询", slug: "api/suspense-query" },
-            { label: "悬账补单", slug: "api/suspense-reorder" },
+          country("🇨🇴 哥伦比亚", "colombia"),
+          country("🇦🇷 阿根廷", "argentina", [
+            { label: "悬账列表", link: "/argentina/suspense/list" },
+            { label: "凭证查询", link: "/argentina/suspense/query" },
+            { label: "悬账补单", link: "/argentina/suspense/reorder" },
           ]),
-          country("🇧🇷 巴西", "br"),
+          country("🇧🇷 巴西", "brazil"),
         ]},
       ],
       components: { ContentPanel: "./src/components/ContentPanel.astro" },

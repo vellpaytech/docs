@@ -8,9 +8,24 @@ interface Props {
 }
 const { method = "POST", path, country = "ID", body = {}, title = "模拟请求" } = Astro.props;
 const initialBody = JSON.stringify(body, null, 2);
+const countryNames: Record<string, string> = {
+  AR: "阿根廷", BR: "巴西", CO: "哥伦比亚", ID: "印度尼西亚",
+  IN: "印度", KH: "柬埔寨", KR: "韩国", VN: "越南",
+};
+const testEnvironments: Record<string, string> = {
+  AR: "https://ar-test-gateway.vellpay.com",
+  BR: "https://br-test-gateway.vellpay.com",
+  CO: "https://co-test-gateway.vellpay.com",
+  ID: "https://id-test-gateway.vellpay.com",
+  IN: "https://in-test-gateway.vellpay.com",
+  KH: "https://kh-test-gateway.vellpay.com",
+  KR: "https://kr-test-gateway.vellpay.com",
+};
+const countryName = `${countryNames[country] ?? country} · ${country}`;
+const testEnvironment = testEnvironments[country] ?? "";
 ---
 
-<vell-api-explorer data-method={method} data-path={path} data-country={country}>
+<vell-api-explorer data-method={method} data-path={path} data-country={country} data-base-url={testEnvironment}>
   <button class="try-trigger" data-open><span>▶</span> Try it · 模拟请求</button>
   <dialog>
     <form method="dialog" class="dialog-shell">
@@ -22,12 +37,8 @@ const initialBody = JSON.stringify(body, null, 2);
         <section class="request-pane">
           <div class="request-line"><span>{method}</span><code>{path}</code></div>
           <div class="control-row">
-            <label>国家<select data-country-select>
-              <option value="ID">印尼 · ID</option><option value="VN">越南 · VN</option><option value="KR">韩国 · KR</option>
-              <option value="KH">柬埔寨 · KH</option><option value="IN">印度 · IN</option><option value="CO">哥伦比亚 · CO</option>
-              <option value="AR">阿根廷 · AR</option><option value="BR">巴西 · BR</option>
-            </select></label>
-            <label>测试环境<input data-base-url placeholder="该国家测试域名暂未配置" disabled /></label>
+            <label>国家<input value={countryName} disabled /></label>
+            <label>测试环境<input data-base-url value={testEnvironment} placeholder="该国家测试域名暂未配置" disabled /></label>
           </div>
           <h3>Header Params</h3>
           <div class="header-grid">
@@ -41,39 +52,21 @@ const initialBody = JSON.stringify(body, null, 2);
         </section>
         <section class="response-pane">
           <div class="response-heading"><h3>Response</h3><span class="test-badge">TEST ONLY</span></div>
-          <pre data-output><code>配置测试域名后，响应状态、耗时和 JSON 将显示在这里。</code></pre>
+          <pre data-output><code>{testEnvironment ? "发送请求后，响应状态、耗时和 JSON 将显示在这里。" : "该国家测试域名暂未配置。"}</code></pre>
           <p class="security">认证信息仅保留在当前页面内存中，不会写入本地存储。</p>
         </section>
       </div>
       <footer>
         <button type="button" class="secondary" data-copy>生成并复制 cURL</button>
-        <button type="button" data-send disabled>测试域名待配置</button>
+        <button type="button" data-send disabled={!testEnvironment}>{testEnvironment ? "发送测试请求" : "测试域名待配置"}</button>
       </footer>
     </form>
   </dialog>
 </vell-api-explorer>
 
 <script>
-  const testEnvironments: Record<string, string> = {
-    AR: "https://ar-test-gateway.vellpay.com",
-    BR: "https://br-test-gateway.vellpay.com",
-    CO: "https://co-test-gateway.vellpay.com",
-    IN: "https://in-test-gateway.vellpay.com",
-    KH: "https://kh-test-gateway.vellpay.com",
-    KR: "https://kr-test-gateway.vellpay.com",
-  };
-
   class VellApiExplorer extends HTMLElement {
     connectedCallback() {
-      const country = this.getAttribute("data-country") || "ID";
-      const queryCountry = new URLSearchParams(window.location.search).get("country");
-      const countrySelect = this.querySelector("[data-country-select]");
-      if (countrySelect instanceof HTMLSelectElement) countrySelect.value = queryCountry || country;
-      countrySelect?.addEventListener("change", () => {
-        this.refreshEnvironment();
-        this.refreshRequestMeta();
-      });
-      this.refreshEnvironment();
       this.refreshRequestMeta();
       this.querySelector("[data-open]")?.addEventListener("click", () => {
         this.refreshRequestMeta();
@@ -85,18 +78,6 @@ const initialBody = JSON.stringify(body, null, 2);
       });
       this.querySelector("[data-copy]")?.addEventListener("click", () => this.copyCurl());
       this.querySelector("[data-send]")?.addEventListener("click", () => this.send());
-    }
-    refreshEnvironment() {
-      const countrySelect = this.querySelector("[data-country-select]");
-      const baseUrl = this.querySelector("[data-base-url]");
-      const sendButton = this.querySelector("[data-send]");
-      const country = countrySelect instanceof HTMLSelectElement ? countrySelect.value : "";
-      const environment = testEnvironments[country] || "";
-      if (baseUrl instanceof HTMLInputElement) baseUrl.value = environment;
-      if (sendButton instanceof HTMLButtonElement) {
-        sendButton.disabled = !environment;
-        sendButton.textContent = environment ? "发送测试请求" : "测试域名待配置";
-      }
     }
     refreshRequestMeta() {
       const nonce = this.querySelector('[data-header="nonce"]');
