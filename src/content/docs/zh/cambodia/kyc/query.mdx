@@ -28,7 +28,7 @@ import ApiExplorer from '../../../../../components/ApiExplorer.astro';
 |---|---|---|---:|---|
 | `code` | int | 是 | - | 状态码，非 200 代表异常 |
 | `data` | Object | 是 | - | 响应体 |
-| `data.authenticationStatus` | String | 是 | 32 | 认证状态：`PENDING`、`REVIEWING`、`APPROVED`、`REJECTED`、`FILA` |
+| `data.authenticationStatus` | String | 是 | 32 | [KYC 状态](/zh/guides/order-status/#kyc-状态) |
 | `data.failMsg` | String | 否 | 20 | 失败原因 |
 | `msg` | String | 否 | - | 异常信息 |
 | `tid` | String | 是 | - | traceId |

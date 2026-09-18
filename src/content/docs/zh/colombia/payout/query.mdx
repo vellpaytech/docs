@@ -6,7 +6,7 @@ import ApiExplorer from '../../../../../components/ApiExplorer.astro';
 
 <ApiExplorer country="CO" path="/trade/payout/query" body={{merchantOrderNo:"PAYOUT202609170001"}} />
 
-<p class="endpoint-lead">查询代付状态、费用、完成时间和退款明细。</p>
+
 
 <div class="method-path"><strong>POST</strong><code>/trade/payout/query</code></div>
 
@@ -31,8 +31,8 @@ import ApiExplorer from '../../../../../components/ApiExplorer.astro';
 | `data.merchantOrderNo` | String | 是 | 32 | 商户订单号 |
 | `data.tradeNo` | String | 是 | 32 | 平台单号 |
 | `data.transactionAmount` | String | 是 | - | 付款金额 |
-| `data.payoutType` | String | 是 | 24 | 代付方式 |
-| `data.status` | String | 是 | 20 | 订单状态 |
+| `data.payoutType` | String | 是 | 24 | [代付方式](/zh/colombia/payout/create/#payment-methods) |
+| `data.status` | String | 是 | 20 | [订单状态](/zh/guides/order-status/) |
 | `data.failMsg` | String | 否 | 24 | 订单失败原因 |
 | `data.serviceAmount` | String | 否 | - | 服务费用 |
 | `data.serviceRate` | String | 否 | - | 服务费率 |
@@ -61,7 +61,7 @@ import ApiExplorer from '../../../../../components/ApiExplorer.astro';
     "merchantOrderNo": "PAYOUT202609170001",
     "tradeNo": "VP20260917000002",
     "transactionAmount": "100.00",
-    "payoutType": "PAYOUT_TYPE",
+    "payoutType": "AHORRO",
     "status": "SUCCESS",
     "serviceAmount": "1.00",
     "completeTime": "2026-09-17 15:30:00"

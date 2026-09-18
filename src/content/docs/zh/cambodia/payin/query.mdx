@@ -6,7 +6,7 @@ import ApiExplorer from '../../../../../components/ApiExplorer.astro';
 
 <ApiExplorer country="KH" path="/trade/payment/query" body={{merchantOrderNo:"ORDER202609170001"}} />
 
-<p class="endpoint-lead">查询代收订单状态、支付信息及拆单流水。</p>
+
 
 <div class="method-path"><strong>POST</strong><code>/trade/payment/query</code></div>
 
@@ -31,15 +31,15 @@ import ApiExplorer from '../../../../../components/ApiExplorer.astro';
 | `data.merchantOrderNo` | String | 是 | 24 | 商户订单号 |
 | `data.tradeNo` | String | 是 | 24 | 平台单号 |
 | `data.transactionAmount` | String | 是 | - | 收款金额 |
-| `data.status` | String | 是 | 24 | 订单状态 |
-| `data.paymentType` | String | 是 | 24 | 支付方式 |
+| `data.status` | String | 是 | 24 | [订单状态](/zh/guides/order-status/) |
+| `data.paymentType` | String | 是 | 24 | [支付方式](/zh/cambodia/payin/create/#payment-methods) |
 | `data.failMsg` | String | 否 | 200 | 订单失败原因 |
 | `data.paymentInfo` | String | 否 | 200 | 支付信息 |
 | `data.serviceAmount` | String | 否 | 24 | 服务费用 |
 | `data.paymentStatements` | List | 否 | - | 代收流水集合 |
 | `data.paymentStatements.paymentSingleOrderNo` | String | 否 | 32 | 代收单次支付流水号 |
 | `data.paymentStatements.paymentAmount` | String | 否 | - | 实际收款金额 |
-| `data.paymentStatements.paymentStatus` | String | 否 | 24 | 单次流水状态 |
+| `data.paymentStatements.paymentStatus` | String | 否 | 24 | [订单状态](/zh/guides/order-status/) |
 | `data.paymentStatements.serviceAmount` | String | 否 | - | 服务费用 |
 | `data.paymentStatements.serviceRate` | String | 否 | - | 服务费率 |
 | `data.paymentStatements.immService` | String | 否 | - | 固收 |
@@ -67,7 +67,7 @@ import ApiExplorer from '../../../../../components/ApiExplorer.astro';
     "tradeNo": "VP20260917000001",
     "transactionAmount": "100.00",
     "status": "SUCCESS",
-    "paymentType": "PAYMENT_TYPE",
+    "paymentType": "KHQR",
     "serviceAmount": "1.00",
     "completeTime": "2026-09-17 15:30:00"
   },

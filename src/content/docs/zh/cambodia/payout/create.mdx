@@ -4,16 +4,16 @@ description: 创建一笔 VellPay 代付订单。
 ---
 import ApiExplorer from '../../../../../components/ApiExplorer.astro';
 
-<ApiExplorer country="KH" path="/trade/payout/create" body={{merchantOrderNo:"PAYOUT202609170001",transactionAmount:"100",payoutType:"PAYOUT_TYPE",userName:"TEST USER",bankCode:"BANK_CODE",bankAccountNo:"1234567890",payoutCallbackUrl:"https://merchant.example/callback"}} />
+<ApiExplorer country="KH" path="/trade/payout/create" body={{merchantOrderNo:"PAYOUT202609170001",transactionAmount:"10000",payoutType:"BANK_TRANSFER",userName:"TEST USER",bankCode:"0001",bankAccountNo:"1234567890",description:"Test payout"}} />
 
-<p class="endpoint-lead">向指定银行账户或钱包发起代付，账户类型由字符串型 payoutType 映射。</p>
+<p class="endpoint-lead"></p>
 
 <div class="method-path"><strong>POST</strong><code>/trade/payout/create</code></div>
 
 ## 请求头
-使用[公共请求头](/zh/guides/request-headers/)。
+[公共请求头](/zh/guides/request-headers/)。
 
-## 支付方式参数
+<h2 id="payment-methods">支付方式参数</h2>
 
 | `payoutType` |
 |---|
@@ -25,13 +25,13 @@ import ApiExplorer from '../../../../../components/ApiExplorer.astro';
 |---|---|---|---:|---|
 | `merchantOrderNo` | String | 是 | 32 | 商户订单号 |
 | `transactionAmount` | String | 是 | 20 | 付款金额，整数（保留 2 位小数） |
-| `payoutType` | String | 是 | 20 | 代付方式 |
+| `payoutType` | String | 是 | 20 | [代付方式](#payment-methods) |
 | `idType` | String | 否 | 50 | 用户证件类型 |
 | `userIdCard` | String | 否 | 32 | 用户证件号码 |
 | `userName` | String | 是 | 64 | 用户姓名 |
 | `userPhone` | String | 否 | 20 | 用户手机号 |
 | `userEmail` | String | 否 | 50 | 用户邮箱 |
-| `bankCode` | String | 是 | 20 | 银行编码 |
+| `bankCode` | String | 是 | 20 | 银行编码，例如 `0001` ABA、`0002` Wing、`0005` Sathapana、`0006` ACLEDA、`0010` Canadia |
 | `bankAccountNo` | String | 是 | 50 | 收款账户 |
 | `description` | String | 是 | 100 | 说明 |
 | `payoutCallbackUrl` | String | 否 | 200 | 代付回调地址 |
@@ -44,11 +44,11 @@ import ApiExplorer from '../../../../../components/ApiExplorer.astro';
 {
   "merchantOrderNo": "PAYOUT202609170001",
   "transactionAmount": "100.00",
-  "payoutType": "PAYOUT_TYPE",
+  "payoutType": "BANK_TRANSFER",
   "userName": "TEST USER",
-  "bankCode": "BANK_CODE",
+  "bankCode": "0001",
   "bankAccountNo": "1234567890",
-  "payoutCallbackUrl": "https://merchant.example/callback"
+  "description": "Test payout"
 }
 ```
 
@@ -60,8 +60,8 @@ import ApiExplorer from '../../../../../components/ApiExplorer.astro';
 | `data.merchantOrderNo` | String | 是 | 32 | 商户订单号 |
 | `data.tradeNo` | String | 是 | 32 | 平台单号 |
 | `data.transactionAmount` | String | 是 | - | 付款金额 |
-| `data.status` | String | 是 | 24 | 订单状态 |
-| `data.payoutType` | String | 是 | 24 | 代付方式 |
+| `data.status` | String | 是 | 24 | [订单状态](/zh/guides/order-status/) |
+| `data.payoutType` | String | 是 | 24 | [代付方式](#payment-methods) |
 | `msg` | String | 否 | - | 异常信息 |
 | `tid` | String | 是 | - | traceId |
 
@@ -74,8 +74,8 @@ import ApiExplorer from '../../../../../components/ApiExplorer.astro';
     "merchantOrderNo": "PAYOUT202609170001",
     "tradeNo": "VP20260917000002",
     "transactionAmount": "100.00",
-    "status": "PROCESSING",
-    "payoutType": "PAYOUT_TYPE"
+    "status": "PAYING",
+    "payoutType": "BANK_TRANSFER"
   },
   "msg": "success",
   "tid": "747bbf80261844ed85b809212aab0d81"

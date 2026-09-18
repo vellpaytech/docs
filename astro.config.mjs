@@ -36,6 +36,7 @@ export default defineConfig({
           { label: "接口鉴权", slug: "guides/authentication" },
           { label: "公共请求头", slug: "guides/request-headers" },
           { label: "公共响应", slug: "guides/common-response" },
+          { label: "订单状态", slug: "guides/order-status" },
           { label: "公共错误码", slug: "guides/error-codes" },
         ]},
         { label: "亚洲", items: [
