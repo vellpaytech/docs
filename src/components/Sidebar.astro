@@ -47,6 +47,7 @@ const countryLinks = (country: (typeof countryGroups)[number]["countries"][numbe
   { label: "查询代收", icon: Search, path: `/${country.slug}/payin/query` },
   { label: "代收回调", icon: BellRing, path: `/${country.slug}/payin/callback` },
   { label: "创建代付", icon: ArrowUpRight, path: `/${country.slug}/payout/create` },
+  { label: "银行编码", icon: ListFilter, path: `/${country.slug}/payout/banks` },
   { label: "查询代付", icon: Search, path: `/${country.slug}/payout/query` },
   { label: "代付回调", icon: BellRing, path: `/${country.slug}/payout/callback` },
   { label: "余额查询", icon: WalletCards, path: `/${country.slug}/inquire/balance` },

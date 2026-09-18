@@ -31,12 +31,12 @@ import ApiExplorer from '../../../../../components/ApiExplorer.astro';
 | `userName` | String | 是 | 64 | 用户姓名 |
 | `userPhone` | String | 否 | 20 | 用户手机号 |
 | `userEmail` | String | 否 | 50 | 用户邮箱 |
-| `bankCode` | String | 是 | 20 | 银行 IFSC 编码，通常为 11 位，例如 `HDFC0000001`；UPI 代付时按已开通渠道要求填写 |
+| `bankCode` | String | 是 | 20 | [银行编码](../banks/) |
 | `bankAccountNo` | String | 是 | 50 | 收款账户 |
 | `description` | String | 是 | 100 | 说明 |
 | `payoutCallbackUrl` | String | 否 | 200 | 代付回调地址 |
 
-<div class="country-note">VellPay 不对外暴露老接口的 <code>bankName</code> 字段。</div>
+
 
 ## 请求示例
 

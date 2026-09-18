@@ -31,12 +31,10 @@ import ApiExplorer from '../../../../../components/ApiExplorer.astro';
 | `userName` | String | 是 | 64 | 用户姓名 |
 | `userPhone` | String | 否 | 20 | 用户手机号 |
 | `userEmail` | String | 否 | 50 | 用户邮箱 |
-| `bankCode` | String | 是 | 20 | 银行编码，例如 `007` Galicia、`011` Nación、`017` BBVA、`072` Santander、`285` Macro |
+| `bankCode` | String | 是 | 20 | [银行编码](../banks/) |
 | `bankAccountNo` | String | 是 | 50 | CVU 或 CBU，均为 22 位数字 |
 | `description` | String | 是 | 100 | 说明 |
 | `payoutCallbackUrl` | String | 否 | 200 | 代付回调地址 |
-
-<div class="country-note">VellPay 不对外暴露老接口的 <code>bankName</code> 字段。</div>
 
 ## 请求示例
 
