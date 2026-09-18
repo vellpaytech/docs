@@ -22,7 +22,7 @@ import {
 import { countryGroups } from "../data/countries";
 
 const { slug } = Astro.props as Props;
-const base = import.meta.env.BASE_URL;
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 const parts = slug.split("/").filter(Boolean);
 const localizedParts = parts[0] === "zh" ? parts.slice(1) : parts;
 const currentCountry = localizedParts[0] ?? "";

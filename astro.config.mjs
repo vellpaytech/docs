@@ -2,8 +2,6 @@ import { defineConfig } from "astro/config";
 import starlight from "@astrojs/starlight";
 import tailwind from "@astrojs/tailwind";
 
-const base = "/vellpaydocs";
-
 const country = (label, slug, extraItems = []) => ({
   label,
   collapsed: true,
@@ -19,8 +17,7 @@ const country = (label, slug, extraItems = []) => ({
 });
 
 export default defineConfig({
-  site: "https://vellpaytech.github.io",
-  base,
+  site: "https://docs.vellpay.com",
   integrations: [
     starlight({
       title: "VellPay Developers",
@@ -29,7 +26,7 @@ export default defineConfig({
       locales: { zh: { label: "中文", lang: "zh-CN" } },
       head: [
         { tag: "meta", attrs: { name: "theme-color", content: "#07111f" } },
-        { tag: "link", attrs: { rel: "icon", type: "image/svg+xml", href: `${base}/favicon.svg` } },
+        { tag: "link", attrs: { rel: "icon", type: "image/svg+xml", href: "/favicon.svg" } },
       ],
       sidebar: [
         { label: "开发指南", items: [

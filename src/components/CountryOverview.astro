@@ -6,7 +6,7 @@ interface Props {
 }
 
 const { country } = Astro.props;
-const base = import.meta.env.BASE_URL;
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 const href = (path: string) => `${base}/zh${path}/`;
 const capabilityIcon = { payin: "↓", payout: "↑", checkout: "▭" };
 const [timezoneName, timezoneOffset = country.timezone] = country.timezone.split(" (");
