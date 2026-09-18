@@ -33,7 +33,7 @@ const testEnvironment = testEnvironments[country] ?? "";
     <form method="dialog" class="dialog-shell">
       <header>
         <div><span class="eyebrow">API TEST CONSOLE</span><div class="console-title"><h2>{title}</h2><span class="test-badge">TEST ONLY</span></div><p>测试环境下配置参数并发送请求</p></div>
-        <button class="close" value="cancel" aria-label="关闭">×</button>
+        <button class="close" value="cancel" formnovalidate aria-label="关闭">×</button>
       </header>
       <div class="workspace">
         <section class="request-pane">
@@ -43,7 +43,7 @@ const testEnvironment = testEnvironments[country] ?? "";
             <label>测试环境<input data-base-url value={testEnvironment} placeholder="该国家测试域名暂未配置" disabled /></label>
           </div>
           <div class="auth-heading"><h3>请求鉴权</h3><span data-auth-state>待配置</span></div>
-          <p class="auth-notice"><ShieldCheck size={16} />私钥仅在浏览器内用于生成 authorization，不会随请求发送或保存；填写 mock 可跳过签名。</p>
+          <p class="auth-notice"><ShieldCheck size={16} />私钥仅在浏览器内用于生成 authorization，不会随请求发送或保存</p>
           <div class="auth-row">
             <label>appId <b>*</b><input data-header="appId" autocomplete="off" placeholder="TEST_APP_ID" /></label>
             <label>商户私钥 <b>*</b><span class="secret-input"><input data-private-key type="password" autocomplete="off" required placeholder="PEM、Base64 PKCS#8 私钥或 mock" /><button type="button" data-toggle-key aria-label="显示或隐藏私钥"><Eye size={17} /></button></span><small>仅保留在当前页面内存，关闭弹窗后自动清空</small></label>
@@ -147,7 +147,7 @@ const testEnvironment = testEnvironments[country] ?? "";
         authorization.value = "";
         authorization.placeholder = "等待填写商户私钥";
         if (state) state.textContent = "待配置";
-        throw new Error("商户私钥为必填项；如需跳过签名，请填写 mock。");
+        throw new Error("商户私钥为必填项；");
       }
       if (privateKey === "mock") {
         authorization.value = "";
