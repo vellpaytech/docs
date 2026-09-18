@@ -1,5 +1,5 @@
 ---
-import { Copy, Send } from "@lucide/astro";
+import { Copy, Eye, RefreshCw, Send, ShieldCheck } from "@lucide/astro";
 
 interface Props {
   method?: string;
@@ -32,7 +32,7 @@ const testEnvironment = testEnvironments[country] ?? "";
   <dialog>
     <form method="dialog" class="dialog-shell">
       <header>
-        <div><span class="eyebrow">API TEST CONSOLE</span><h2>{title}</h2></div>
+        <div><span class="eyebrow">API TEST CONSOLE</span><div class="console-title"><h2>{title}</h2><span class="test-badge">TEST ONLY</span></div><p>测试环境下配置参数并发送请求</p></div>
         <button class="close" value="cancel" aria-label="关闭">×</button>
       </header>
       <div class="workspace">
@@ -42,25 +42,32 @@ const testEnvironment = testEnvironments[country] ?? "";
             <label>国家<input value={countryName} disabled /></label>
             <label>测试环境<input data-base-url value={testEnvironment} placeholder="该国家测试域名暂未配置" disabled /></label>
           </div>
-          <h3>Header Params</h3>
+          <div class="auth-heading"><h3>请求鉴权</h3><span data-auth-state>待配置</span></div>
+          <p class="auth-notice"><ShieldCheck size={16} />私钥仅在浏览器内用于生成 authorization，不会随请求发送或保存；填写 mock 可跳过签名。</p>
+          <div class="auth-row">
+            <label>appId <b>*</b><input data-header="appId" autocomplete="off" placeholder="TEST_APP_ID" /></label>
+            <label>商户私钥 <b>*</b><span class="secret-input"><input data-private-key type="password" autocomplete="off" required placeholder="PEM、Base64 PKCS#8 私钥或 mock" /><button type="button" data-toggle-key aria-label="显示或隐藏私钥"><Eye size={17} /></button></span><small>仅保留在当前页面内存，关闭弹窗后自动清空</small></label>
+          </div>
+          <h3>请求头</h3>
           <div class="header-grid">
-            <label>appId<input data-header="appId" autocomplete="off" placeholder="TEST_APP_ID" /></label>
             <label>nonce<input data-header="nonce" autocomplete="off" /></label>
             <label>timestamp<input data-header="timestamp" autocomplete="off" /></label>
-            <label>authorization<input data-header="authorization" type="password" autocomplete="off" placeholder="仅保留在当前页面" /></label>
+            <label class="authorization-field">authorization（本地生成）<input data-header="authorization" type="password" autocomplete="off" readonly placeholder="等待填写商户私钥" /></label>
           </div>
-          <h3>Body Params <small>application/json</small></h3>
+          <h3>请求参数 <small>application/json</small></h3>
           <textarea data-body spellcheck="false">{initialBody}</textarea>
         </section>
         <section class="response-pane">
-          <div class="response-heading"><h3>Response</h3><span class="test-badge">TEST ONLY</span></div>
+          <div class="response-heading"><h3>响应结果</h3><span class="response-hint">Response</span></div>
           <pre data-output><code>{testEnvironment ? "发送请求后，响应状态、耗时和 JSON 将显示在这里。" : "该国家测试域名暂未配置。"}</code></pre>
           <p class="security">认证信息仅保留在当前页面内存中，不会写入本地存储。</p>
         </section>
       </div>
       <footer>
-        <button type="button" class="secondary" data-copy>生成并复制 cURL</button>
-        <button type="button" data-send disabled={!testEnvironment}>{testEnvironment ? "发送测试请求" : "测试域名待配置"}</button>
+        <p class="action-note" data-action-note>复制 cURL 不会发送请求</p>
+        <button type="button" class="secondary" data-regenerate><RefreshCw size={16} />重新生成凭证</button>
+        <button type="button" class="secondary" data-copy><Copy size={16} />生成并复制 cURL</button>
+        <button type="button" data-send disabled={!testEnvironment}><Send size={16} />{testEnvironment ? "发送测试请求" : "测试域名待配置"}</button>
       </footer>
     </form>
   </dialog>
@@ -78,7 +85,20 @@ const testEnvironment = testEnvironments[country] ?? "";
       this.querySelector("dialog")?.addEventListener("click", (event) => {
         if (event.target === event.currentTarget && event.currentTarget instanceof HTMLDialogElement) event.currentTarget.close();
       });
+      this.querySelector("dialog")?.addEventListener("close", () => {
+        const key = this.querySelector("[data-private-key]");
+        const authorization = this.querySelector('[data-header="authorization"]');
+        const state = this.querySelector("[data-auth-state]");
+        if (key instanceof HTMLInputElement) key.value = "";
+        if (authorization instanceof HTMLInputElement) { authorization.value = ""; authorization.placeholder = "等待填写商户私钥"; }
+        if (state) state.textContent = "待配置";
+      });
       this.querySelector("[data-copy]")?.addEventListener("click", () => this.copyCurl());
+      this.querySelector("[data-regenerate]")?.addEventListener("click", () => this.regenerateCredentials());
+      this.querySelector("[data-toggle-key]")?.addEventListener("click", () => this.togglePrivateKey());
+      this.querySelector("[data-private-key]")?.addEventListener("input", () => this.markAuthorizationStale());
+      this.querySelector('[data-header="appId"]')?.addEventListener("input", () => this.markAuthorizationStale());
+      this.querySelector("[data-body]")?.addEventListener("input", () => this.markAuthorizationStale());
       this.querySelector("[data-copy-path]")?.addEventListener("click", () => this.copyPath());
       this.querySelector("[data-send]")?.addEventListener("click", () => this.send());
       requestAnimationFrame(() => this.placeEndpointActions());
@@ -102,6 +122,53 @@ const testEnvironment = testEnvironments[country] ?? "";
       }
       return `${Date.now().toString(36)}${Math.random().toString(36).slice(2)}${Math.random().toString(36).slice(2)}`;
     }
+    togglePrivateKey() {
+      const input = this.querySelector("[data-private-key]");
+      if (input instanceof HTMLInputElement) input.type = input.type === "password" ? "text" : "password";
+    }
+    markAuthorizationStale() {
+      const state = this.querySelector("[data-auth-state]");
+      if (state) state.textContent = "待重新生成";
+    }
+    async regenerateCredentials() {
+      const nonce = this.querySelector('[data-header="nonce"]');
+      const timestamp = this.querySelector('[data-header="timestamp"]');
+      if (nonce instanceof HTMLInputElement) nonce.value = this.createNonce();
+      if (timestamp instanceof HTMLInputElement) timestamp.value = String(Date.now());
+      await this.generateAuthorization();
+    }
+    async generateAuthorization() {
+      const keyInput = this.querySelector("[data-private-key]");
+      const authorization = this.querySelector('[data-header="authorization"]');
+      const state = this.querySelector("[data-auth-state]");
+      if (!(keyInput instanceof HTMLInputElement) || !(authorization instanceof HTMLInputElement)) return;
+      const privateKey = keyInput.value.trim();
+      if (!privateKey) {
+        authorization.value = "";
+        authorization.placeholder = "等待填写商户私钥";
+        if (state) state.textContent = "待配置";
+        throw new Error("商户私钥为必填项；如需跳过签名，请填写 mock。");
+      }
+      if (privateKey === "mock") {
+        authorization.value = "";
+        authorization.placeholder = "mock 模式（authorization 为空）";
+        if (state) state.textContent = "mock 模式";
+        return;
+      }
+      let body;
+      try { body = JSON.parse(this.querySelector("[data-body]")?.value || "{}"); }
+      catch { throw new Error("JSON 格式错误：请求体必须是合法 JSON。"); }
+      const nonce = this.querySelector('[data-header="nonce"]')?.value || "";
+      const raw = Object.entries(body).filter(([name, value]) => name !== "sign" && value != null && !(typeof value === "string" && !value.trim())).sort(([a], [b]) => a.localeCompare(b)).map(([name, value]) => `${name}=${typeof value === "object" ? JSON.stringify(value) : value}`).concat(`nonce=${nonce}`).join("&");
+      try {
+        const clean = privateKey.replace(/-----BEGIN [^-]+-----|-----END [^-]+-----|\s/g, "");
+        const bytes = Uint8Array.from(atob(clean), (character) => character.charCodeAt(0));
+        const importedKey = await crypto.subtle.importKey("pkcs8", bytes, { name: "RSASSA-PKCS1-v1_5", hash: "SHA-1" }, false, ["sign"]);
+        const signature = await crypto.subtle.sign("RSASSA-PKCS1-v1_5", importedKey, new TextEncoder().encode(raw));
+        authorization.value = btoa(String.fromCharCode(...new Uint8Array(signature)));
+        if (state) state.textContent = "已签名";
+      } catch { throw new Error("私钥格式或算法不正确，请使用 PEM 或 Base64 格式的 PKCS#8 RSA 私钥。"); }
+    }
     requestData() {
       const value = (selector) => this.querySelector(selector)?.value || "";
       return {
@@ -112,6 +179,8 @@ const testEnvironment = testEnvironments[country] ?? "";
       };
     }
     async copyCurl() {
+      try { await this.regenerateCredentials(); }
+      catch (error) { this.showMessage(error instanceof Error ? error.message : String(error)); return; }
       const req = this.requestData();
       const headers = Object.entries(req.headers).map(([key, value]) => `-H '${key}: ${value}'`).join(" \\\n  ");
       const curl = `curl -X ${req.method} '${req.base || "https://TEST_DOMAIN"}${req.path}' \\\n  ${headers} \\\n  --data '${req.body.replaceAll("'", "'\\''")}'`;
@@ -122,7 +191,10 @@ const testEnvironment = testEnvironments[country] ?? "";
         document.body.append(textarea); textarea.select(); document.execCommand("copy"); textarea.remove();
       }
       const button = this.querySelector("[data-copy]");
-      if (button) { button.textContent = "已复制"; setTimeout(() => button.textContent = "生成并复制 cURL", 1200); }
+      const note = this.querySelector("[data-action-note]");
+      if (note) note.textContent = "cURL 已复制，未发送网络请求";
+      if (button) button.classList.add("copied");
+      setTimeout(() => { if (note) note.textContent = "复制 cURL 不会发送请求"; if (button) button.classList.remove("copied"); }, 1600);
     }
     async copyPath() {
       const path = this.getAttribute("data-path") || "";
@@ -135,17 +207,26 @@ const testEnvironment = testEnvironments[country] ?? "";
       if (button) { button.setAttribute("title", "已复制"); setTimeout(() => button.setAttribute("title", "复制接口路径"), 1200); }
     }
     async send() {
+      try { await this.regenerateCredentials(); }
+      catch (error) { this.showMessage(error instanceof Error ? error.message : String(error)); return; }
       const req = this.requestData();
       if (!req.base) return;
       const output = this.querySelector("[data-output] code");
       try {
+        const note = this.querySelector("[data-action-note]");
+        if (note) note.textContent = "正在向测试网关发送请求…";
         const started = performance.now();
         const response = await fetch(`${req.base}${req.path}`, { method: req.method, headers: req.headers, body: req.body });
         const text = await response.text();
         let content = text;
         try { content = JSON.stringify(JSON.parse(text), null, 2); } catch {}
         if (output) output.textContent = `${response.status} · ${Math.round(performance.now() - started)}ms\n${content}`;
-      } catch (error) { if (output) output.textContent = error instanceof Error ? error.message : String(error); }
+        if (note) note.textContent = "测试请求已发送";
+      } catch (error) { this.showMessage(error instanceof Error ? error.message : String(error)); }
+    }
+    showMessage(message) {
+      const output = this.querySelector("[data-output] code");
+      if (output) output.textContent = message;
     }
   }
   if (!customElements.get("vell-api-explorer")) customElements.define("vell-api-explorer", VellApiExplorer);
@@ -185,4 +266,53 @@ const testEnvironment = testEnvironments[country] ?? "";
   footer button:disabled { cursor:not-allowed; opacity:.45; }
   footer .secondary { background:#173244; color:#b8e5e0; }
   @media(max-width:52rem) { vell-api-explorer { float:none; margin:.5rem 0 1rem; } .workspace { grid-template-columns:1fr; } .response-pane { border-left:0; border-top:1px solid #213747; } .control-row,.header-grid { grid-template-columns:1fr; } }
+
+  /* API console — visual alignment with the supplied reference. */
+  vell-api-explorer { --console-line:#2b4b60; --console-muted:#8da7bb; --console-accent:#24dfcf; }
+  dialog { max-height:calc(100dvh - 48px); width:min(1370px,calc(100vw - 48px)); }
+  dialog::backdrop { backdrop-filter:blur(8px); background:rgba(2,10,18,.84); }
+  .dialog-shell { background:linear-gradient(145deg,#071827,#061522 64%,#081b29); border-color:#31546c; border-radius:14px; box-shadow:0 28px 90px rgba(0,0,0,.58),inset 0 0 64px rgba(15,132,151,.05); display:flex; flex-direction:column; height:min(968px,calc(100dvh - 48px)); }
+  header { align-items:flex-start; flex:0 0 130px; padding:26px 34px 20px; }
+  .eyebrow { color:var(--console-accent); font:800 13px/1.2 ui-monospace,monospace; letter-spacing:.14em; }
+  .console-title { align-items:center; display:flex; gap:14px; margin-top:8px; }
+  dialog header h2 { font-size:30px!important; line-height:1.1; margin:0!important; }
+  header p { color:var(--console-muted); font-size:14px; margin:8px 0 0; }
+  .test-badge { background:transparent; border-color:var(--console-accent); color:var(--console-accent); font-size:11px; padding:6px 10px; }
+  .close { color:#a9bfd2; padding:0; }
+  .workspace { flex:1 1 auto; grid-template-columns:54% 46%; min-height:0; overflow:hidden; }
+  .request-pane,.response-pane { box-sizing:border-box; overflow-y:auto; padding:20px 28px; scrollbar-color:#89a5ba transparent; scrollbar-width:thin; }
+  .response-pane { background:rgba(4,16,27,.45); border-color:var(--console-line); }
+  .request-line { background:#091b29; border-color:#315773; min-height:48px; padding:4px; }
+  .request-line span { background:linear-gradient(135deg,#21dfce,#0cc4b9); border-radius:5px; color:#032e33; font-size:12px; padding:11px 17px; }
+  .request-line code { font-size:14px; margin-left:4px; }
+  .control-row,.header-grid { gap:16px; }
+  .auth-heading { align-items:center; display:flex; gap:10px; margin-top:18px; }
+  .auth-heading h3 { margin:0!important; }
+  .auth-heading>span { background:#294158; border-radius:999px; color:#d2e0ed; font-size:11px; padding:5px 9px; }
+  .auth-notice { align-items:center; background:linear-gradient(90deg,rgba(13,53,78,.95),rgba(12,44,68,.82)); border:1px solid #2877a1; border-radius:8px; color:#8ccaf2; display:flex; font-size:12px; gap:8px; margin:10px 0 4px; padding:10px 12px; }
+  .auth-row { display:grid; gap:16px; grid-template-columns:43% 57%; }
+  .auth-row label>b { color:#ff6b6b; }
+  .secret-input { display:block; position:relative; }
+  .secret-input button { background:transparent; border:0; color:#a8c0d4; cursor:pointer; padding:6px; position:absolute; right:6px; top:7px; }
+  .auth-row small { color:#718da5; display:block; font-size:11px; margin-top:5px; }
+  .header-grid { grid-template-columns:1fr 1fr; }
+  .authorization-field { grid-column:1/-1; }
+  dialog h3 { color:#f1f7fc!important; font-size:17px; margin:20px 0 9px!important; }
+  h3 small { background:#0b514b; border-radius:999px; color:#76e6d9; padding:4px 8px; }
+  label { color:#b8ccdb; font-size:13px; margin-top:10px; }
+  input,select,textarea { background:#091b29; border-color:#315773; border-radius:8px; box-sizing:border-box; color:#edf6ff; font-size:13px; padding:11px 12px; }
+  input { height:43px; }
+  textarea { min-height:300px; }
+  .response-heading h3 { font-size:23px!important; margin:0 0 18px!important; }
+  .response-hint { color:#7590a5; font:12px ui-monospace,monospace; }
+  pre { background:rgba(3,13,22,.66); border-color:#29485f; border-radius:9px; box-sizing:border-box; min-height:500px; padding:18px 20px; }
+  pre code { color:#b9d1e3; font-size:13px; line-height:1.75; }
+  .security { color:#7d98ad; font-size:12px; }
+  footer { align-items:center; border-color:var(--console-line); flex:0 0 86px; padding:15px 30px; }
+  footer .action-note { color:#819bae; font-size:12px; margin:0 auto 0 0; }
+  footer button { align-items:center; display:flex; font-size:13px; gap:7px; justify-content:center; min-width:194px; padding:12px 18px; }
+  footer .secondary { background:#0b2233; border:1px solid #315773; color:#c5d7e6; min-width:160px; }
+  footer .secondary.copied { border-color:var(--console-accent); color:var(--console-accent); }
+  footer button:not(.secondary) { background:linear-gradient(135deg,#22dac9,#17cbbf); }
+  @media(max-width:52rem) { dialog{width:calc(100vw - 16px)}.dialog-shell{height:calc(100dvh - 16px)}header{flex-basis:112px;padding:18px}.workspace{display:block;overflow-y:auto}.request-pane,.response-pane{overflow:visible;padding:16px}.response-pane{border-left:0;border-top:1px solid var(--console-line)}.auth-row{grid-template-columns:1fr}footer{flex:0 0 auto;flex-wrap:wrap;padding:12px 16px}footer .action-note{flex-basis:100%}footer button{min-width:0;flex:1}.console-title h2{font-size:24px!important} }
 </style>
