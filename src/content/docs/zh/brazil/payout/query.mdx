@@ -46,6 +46,17 @@ import ApiExplorer from '../../../../../components/ApiExplorer.astro';
 | `msg` | String | 否 | - | 异常信息 |
 | `tid` | String | 是 | - | traceId |
 
+## 订单状态
+
+| 状态 | 说明 |
+|---|---|
+| `INIT` | 受理中 |
+| `PAYING` | 交易中 |
+| `SUCCESS` | 已完成 |
+| `FAIL` | 已失败 |
+| `REFUND` | 已退款 |
+| `PART_REFUND` | 部分退款 |
+
 ## 响应示例
 
 ```json

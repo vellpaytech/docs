@@ -12,6 +12,15 @@ import ApiExplorer from '../../../../../components/ApiExplorer.astro';
 
 使用[公共请求头](/zh/guides/request-headers/)。
 
+## 支付方式参数
+
+| `paymentType` |
+|---|
+| `CHECKOUT` |
+| `QR` |
+| `PHONEPE` |
+| `PAYTM` |
+
 ## 请求参数
 
 | 字段 | 类型 | 必填 | 最大长度 | 说明 |
@@ -19,19 +28,16 @@ import ApiExplorer from '../../../../../components/ApiExplorer.astro';
 | `merchantOrderNo` | String | 是 | 32 | 商户订单号 |
 | `transactionAmount` | String | 是 | 20 | 收款金额 |
 | `paymentType` | String | 是 | 24 | 支付方式 |
-| `idType` | String | 是 | 32 | 用户证件类型 |
-| `userIdCard` | String | 是 | 32 | 用户证件号码 |
+| `idType` | String | 否 | 32 | 用户证件类型 |
+| `userIdCard` | String | 否 | 50 | 用户证件号码 |
 | `userName` | String | 是 | 64 | 用户姓名 |
-| `userPhone` | String | 是 | 20 | 用户手机号 |
+| `userPhone` | String | 是 | 50 | 用户手机号 |
 | `userEmail` | String | 是 | 50 | 用户邮箱 |
-| `bankCode` | String | 否 | 20 | 银行编码 |
-| `bankAccountNo` | String | 是 | 20 | 银行账户 |
-| `merchantName` | String | 是 | 20 | 商户名称 |
-| `description` | String | 是 | 100 | 说明 |
-| `accountHolderNumber` | String | 否 | 20 | 账户持有人识别码，格式 YYMMDD |
-| `ipAddress` | String | 否 | 64 | 付款人 IP 地址 |
-| `channel` | String | 否 | 64 | 支付方式扩展字段 |
-| `expireTime` | String | 是 | - | 订单过期时间，使用国家当地时间 |
+| `bankCode` | String | 否 | 64 | 银行编码 |
+| `bankAccountNo` | String | 否 | 64 | 银行账户号 |
+| `merchantName` | String | 否 | 64 | 商户名称 |
+| `description` | String | 否 | 100 | 说明 |
+| `expireTime` | String | 否 | - | 订单过期时间（国家当地时间，格式 `yyyy-MM-dd HH:mm:ss`） |
 | `paymentCallbackUrl` | String | 否 | 200 | 代收回调地址 |
 
 ## 请求示例

@@ -38,13 +38,19 @@ import ApiExplorer from '../../../../../components/ApiExplorer.astro';
 | `data.serviceRate` | String | 否 | - | 服务费率 |
 | `data.immService` | String | 否 | - | 固收 |
 | `data.completeTime` | String | 否 | - | 完成时间（国家当地时间） |
-| `data.totalRefundAmount` | String | 否 | - | 退款总金额 |
-| `data.refundDetails` | Array | 否 | - | 退款明细集合 |
-| `data.refundDetails.refundNo` | String | 否 | 32 | 退款单号 |
-| `data.refundDetails.refundAmount` | String | 否 | - | 退款金额 |
-| `data.refundDetails.refundTime` | String | 否 | - | 退款时间（国家当地时间） |
 | `msg` | String | 否 | - | 异常信息 |
 | `tid` | String | 是 | - | traceId |
+
+## 订单状态
+
+| 状态 | 说明 |
+|---|---|
+| `INIT` | 受理中 |
+| `PAYING` | 交易中 |
+| `SUCCESS` | 已完成 |
+| `FAIL` | 已失败 |
+| `REFUND` | 已退款 |
+| `PART_REFUND` | 部分退款 |
 
 ## 响应示例
 
@@ -58,8 +64,7 @@ import ApiExplorer from '../../../../../components/ApiExplorer.astro';
     "payoutType": "PAYOUT_TYPE",
     "status": "SUCCESS",
     "serviceAmount": "1.00",
-    "completeTime": "2026-09-17 15:30:00",
-    "totalRefundAmount": "0"
+    "completeTime": "2026-09-17 15:30:00"
   },
   "msg": "success",
   "tid": "747bbf80261844ed85b809212aab0d81"
