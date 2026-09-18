@@ -78,6 +78,6 @@ export const countries: Record<string, CountryConfig> = {
 };
 
 export const countryGroups = [
-  { id: "asia", label: "亚洲", countries: [countries.indonesia, countries.vietnam, countries.korea, countries.cambodia, countries.india] },
-  { id: "latin-america", label: "拉丁美洲", countries: [countries.colombia, countries.argentina, countries.brazil] },
+  { id: "latin-america", label: "拉丁美洲", countries: [countries.argentina, countries.brazil, countries.colombia] },
+  { id: "asia", label: "亚洲", countries: [countries.cambodia, countries.india, countries.indonesia, countries.korea, countries.vietnam] },
 ];

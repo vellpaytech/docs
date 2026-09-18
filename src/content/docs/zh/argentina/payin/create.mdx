@@ -8,6 +8,8 @@ import ApiExplorer from '../../../../../components/ApiExplorer.astro';
 
 <p class="endpoint-lead">使用统一字段创建代收订单。支付方式和必填字段根据请求所属国家确定。</p>
 
+> 阿根廷代收的 `transactionAmount` 必须为 10 的倍数。
+
 <div class="method-path"><strong>POST</strong><code>/trade/payment/create</code></div>
 
 使用[公共请求头](/zh/guides/request-headers/)。

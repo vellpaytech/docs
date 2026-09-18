@@ -28,8 +28,8 @@ import ApiExplorer from '../../../../../components/ApiExplorer.astro';
 | `bankAccountNo` | String | 是 | 20 | 银行账户 |
 | `merchantName` | String | 是 | 20 | 商户名称 |
 | `description` | String | 是 | 100 | 说明 |
-| `accountHolderNumber` | String | 否 | 20 | 账户持有人识别码，格式 YYMMDD |
-| `ipAddress` | String | 否 | 64 | 付款人 IP 地址 |
+| `accountHolderNumber` | String | 否 | 20 | 账户持有人识别码：个人填写居民登记号前 6 位（`YYMMDD`），企业填写 10 位事业者登录号 |
+| `ipAddress` | String | 否 | 64 | 付款人客户端 IP 地址；支付方式为 `KAKAOPAY` 或 `TOSSPAY` 时必填 |
 | `channel` | String | 否 | 64 | 支付方式扩展字段 |
 | `expireTime` | String | 是 | - | 订单过期时间，使用国家当地时间 |
 | `paymentCallbackUrl` | String | 否 | 200 | 代收回调地址 |

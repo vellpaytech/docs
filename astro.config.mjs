@@ -20,7 +20,7 @@ export default defineConfig({
   site: "https://docs.vellpay.com",
   integrations: [
     starlight({
-      title: "VellPay Developers",
+      title: "VellPay Docs",
       description: "VellPay 统一支付 API 开发者文档",
       defaultLocale: "zh",
       locales: { zh: { label: "中文", lang: "zh-CN" } },
@@ -43,6 +43,7 @@ export default defineConfig({
           country("🇰🇭 柬埔寨", "cambodia", [
             { label: "KYC 创建", link: "/cambodia/kyc/create" },
             { label: "KYC 查询", link: "/cambodia/kyc/query" },
+            { label: "KYC 回调", link: "/cambodia/kyc/callback" },
           ]),
           country("🇮🇳 印度", "india"),
         ]},
@@ -53,7 +54,9 @@ export default defineConfig({
             { label: "凭证查询", link: "/argentina/suspense/query" },
             { label: "悬账补单", link: "/argentina/suspense/reorder" },
           ]),
-          country("🇧🇷 巴西", "brazil"),
+          country("🇧🇷 巴西", "brazil", [
+            { label: "代付回调", link: "/brazil/payout/callback" },
+          ]),
         ]},
       ],
       components: {

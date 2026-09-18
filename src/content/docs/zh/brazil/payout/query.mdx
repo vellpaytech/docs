@@ -42,7 +42,7 @@ import ApiExplorer from '../../../../../components/ApiExplorer.astro';
 | `data.refundDetails` | Array | 否 | - | 退款明细集合 |
 | `data.refundDetails.refundNo` | String | 否 | 32 | 退款单号 |
 | `data.refundDetails.refundAmount` | String | 否 | - | 退款金额 |
-| `data.refundDetails.refundTime` | String | 否 | - | 退款时间（国家当地时间） |
+| `data.refundDetails.refundTime` | String | 否 | - | 退款时间（国家当地时间，格式 `yyyy-MM-dd HH:mm:ss`） |
 | `msg` | String | 否 | - | 异常信息 |
 | `tid` | String | 是 | - | traceId |
 
@@ -59,7 +59,14 @@ import ApiExplorer from '../../../../../components/ApiExplorer.astro';
     "status": "SUCCESS",
     "serviceAmount": "1.00",
     "completeTime": "2026-09-17 15:30:00",
-    "totalRefundAmount": "0"
+    "totalRefundAmount": "100.00",
+    "refundDetails": [
+      {
+        "refundNo": "REFUND202609170001",
+        "refundAmount": "100.00",
+        "refundTime": "2026-09-17 15:30:00"
+      }
+    ]
   },
   "msg": "success",
   "tid": "747bbf80261844ed85b809212aab0d81"

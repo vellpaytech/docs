@@ -3,6 +3,7 @@ import type { Props } from "@astrojs/starlight/props";
 import {
   ArrowDownLeft,
   ArrowUpRight,
+  BellRing,
   ChevronDown,
   ChevronRight,
   CreditCard,
@@ -49,6 +50,10 @@ const countryLinks = (country: (typeof countryGroups)[number]["countries"][numbe
   ...(country.slug === "cambodia" ? [
     { label: "创建 KYC", icon: UserRoundCheck, path: "/cambodia/kyc/create" },
     { label: "查询 KYC", icon: Search, path: "/cambodia/kyc/query" },
+    { label: "KYC 回调", icon: BellRing, path: "/cambodia/kyc/callback" },
+  ] : []),
+  ...(country.slug === "brazil" ? [
+    { label: "代付回调", icon: BellRing, path: "/brazil/payout/callback" },
   ] : []),
   ...(country.slug === "argentina" ? [
     { label: "悬账列表", icon: ListFilter, path: "/argentina/suspense/list" },
@@ -73,14 +78,14 @@ const countryLinks = (country: (typeof countryGroups)[number]["countries"][numbe
   <div class="countries-heading"><Globe2 size={18} stroke-width={1.8} aria-hidden="true" />国家与地区</div>
   {countryGroups.map((group) => {
     const regionActive = group.countries.some((country) => country.slug === currentCountry);
-    return <section class:list={{ region: true, active: regionActive }}>
-      <div class="region-label">{group.id === "asia" ? <Map size={18} stroke-width={1.8} aria-hidden="true" /> : <MapPinned size={18} stroke-width={1.8} aria-hidden="true" />}<b>{group.label}</b><small>{group.countries.length} 个国家</small></div>
+    return <details class:list={{ region: true, active: regionActive }} open={regionActive}>
+      <summary class="region-label">{group.id === "asia" ? <Map size={18} stroke-width={1.8} aria-hidden="true" /> : <MapPinned size={18} stroke-width={1.8} aria-hidden="true" />}<b>{group.label}</b><small>{group.countries.length} 个国家</small><span class="chevrons"><ChevronRight size={18} stroke-width={1.8} /><ChevronDown size={18} stroke-width={1.8} /></span></summary>
       <div class="country-list">
         {group.countries.map((country) => {
           const countryActive = country.slug === currentCountry;
           return <details class="vp-country" data-country={country.slug} open={countryActive}>
             <summary class:list={{ active: countryActive }}>
-              <img class="flag" src={`https://flagcdn.com/w40/${country.code.toLowerCase()}.png`} alt={`${country.name}国旗`} width="24" height="18" loading="lazy" /><span class="country-name">{country.name}</span><small>{country.currency}</small><span class="chevrons"><ChevronRight size={18} stroke-width={1.8} /><ChevronDown size={18} stroke-width={1.8} /></span>
+              <img class="flag" src={`https://flagcdn.com/w40/${country.code.toLowerCase()}.png`} alt={`${country.name}国旗`} width="24" height="18" loading="lazy" /><span class="country-name">{country.name}</span><small>{country.code}</small><span class="chevrons"><ChevronRight size={18} stroke-width={1.8} /><ChevronDown size={18} stroke-width={1.8} /></span>
             </summary>
             <div class="country-pages">
               {countryLinks(country).map((link) => {
@@ -91,7 +96,7 @@ const countryLinks = (country: (typeof countryGroups)[number]["countries"][numbe
           </details>;
         })}
       </div>
-    </section>;
+    </details>;
   })}
 </nav>
 
@@ -125,11 +130,11 @@ const countryLinks = (country: (typeof countryGroups)[number]["countries"][numbe
   .guide-links a,.country-pages a { border-left:1px solid color-mix(in srgb,var(--color-border) 45%,transparent); color:var(--sl-color-gray-2); line-height:1.35; padding:.42rem .7rem; text-decoration:none; }
   .guide-links a:hover,.country-pages a:hover { color:var(--color-primary-hover); }
   .guide-links a.current { border-left-color:var(--color-primary); color:var(--color-primary); font-weight:650; }
-  .countries-heading { align-items:center; border-top:1px solid var(--sl-color-hairline); color:var(--sl-color-gray-3); display:flex; font-size:.75rem; font-weight:750; gap:10px; letter-spacing:.08em; margin:1rem .45rem .55rem; padding-top:1rem; text-transform:uppercase; }
+  .countries-heading { align-items:center; background:var(--color-selected); border:1px solid color-mix(in srgb,var(--color-primary) 16%,var(--color-border)); border-radius:8px; color:var(--color-primary); display:flex; font-size:.82rem; font-weight:750; gap:10px; letter-spacing:.02em; margin:1rem .2rem .55rem; padding:.6rem .55rem; }
   .region { border-left:2px solid transparent; margin:.25rem 0 .7rem; }
   .region.active { border-left-color:transparent; }
   .region-label { align-items:center; color:var(--sl-color-gray-2); display:flex; gap:10px; min-height:2.2rem; padding:.35rem .55rem; }
-  .region.active .region-label :global(svg) { color:var(--color-primary); }.region-label b { color:var(--color-text); font-weight:680; }.region-label small { color:var(--sl-color-gray-3); font-size:.68rem; margin-left:auto; }
+  .region.active .region-label :global(svg) { color:var(--color-primary); }.region-label b { color:var(--color-text); font-weight:680; }.region-label small { color:var(--sl-color-gray-3); font-size:.68rem; margin-left:auto; }.region-label .chevrons{margin-left:0}
   .country-list { margin-left:.45rem; }
   .vp-country>summary { position:relative; }
   .vp-country>summary.active { background:var(--color-selected); color:var(--color-primary); font-weight:720; }
@@ -139,6 +144,6 @@ const countryLinks = (country: (typeof countryGroups)[number]["countries"][numbe
   .country-pages a { align-items:center; display:flex; gap:10px; }
   .country-pages a :global(svg) { color:#7890a3; flex:0 0 16px; height:16px; stroke-width:1.8; width:16px; }
   .country-pages a:hover :global(svg) { color:var(--color-primary-hover); }.country-pages a.current :global(svg) { color:var(--color-primary); }
-  .country-pages a.current { background:var(--color-selected); border-left-color:transparent; border-radius:6px; color:var(--color-primary); font-weight:680; }
+  .country-pages a.current { background:transparent; border-left-color:var(--color-primary); border-radius:0; color:var(--color-primary); font-weight:650; }
   @media(max-width:50rem) { .vp-sidebar { padding-bottom:1rem; } }
 </style>

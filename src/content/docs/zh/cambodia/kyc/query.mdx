@@ -28,7 +28,7 @@ import ApiExplorer from '../../../../../components/ApiExplorer.astro';
 |---|---|---|---:|---|
 | `code` | int | 是 | - | 状态码，非 200 代表异常 |
 | `data` | Object | 是 | - | 响应体 |
-| `data.authenticationStatus` | String | 是 | 32 | 认证状态 |
+| `data.authenticationStatus` | String | 是 | 32 | 认证状态：`PENDING`、`REVIEWING`、`APPROVED`、`REJECTED`、`FILA` |
 | `data.failMsg` | String | 否 | 20 | 失败原因 |
 | `msg` | String | 否 | - | 异常信息 |
 | `tid` | String | 是 | - | traceId |
@@ -39,7 +39,7 @@ import ApiExplorer from '../../../../../components/ApiExplorer.astro';
 {
   "code": 200,
   "data": {
-    "authenticationStatus": "SUCCESS",
+    "authenticationStatus": "APPROVED",
     "failMsg": null
   },
   "msg": "success",

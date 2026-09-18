@@ -1,0 +1,37 @@
+---
+title: 代付回调
+description: 巴西代付发生退款时，VellPay 向商户代付回调地址推送退款信息。
+---
+
+<p class="endpoint-lead">该回调由 VellPay 主动发送至商户配置的代付回调地址，不需要调用 VellPay API。</p>
+
+## 请求参数
+
+| 字段 | 类型 | 必填 | 最大长度 | 说明 |
+|---|---|---|---:|---|
+| `refundNo` | String | 否 | 32 | 退款单号 |
+| `refundAmount` | String | 否 | - | 退款金额 |
+| `refundTime` | String | 否 | - | 退款时间（国家当地时间，格式 `yyyy-MM-dd HH:mm:ss`） |
+
+## 请求示例
+
+```json
+{
+  "refundNo": "REFUND202609170001",
+  "refundAmount": "100.00",
+  "refundTime": "2026-09-17 15:30:00"
+}
+```
+
+## 响应参数
+
+商户接收回调后，请返回 HTTP `200`，表示已成功接收通知。
+
+## 响应示例
+
+```json
+{
+  "result": "SUCCESS",
+  "msg": "OK"
+}
+```
