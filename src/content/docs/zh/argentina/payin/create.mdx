@@ -6,12 +6,10 @@ import ApiExplorer from '../../../../../components/ApiExplorer.astro';
 
 <ApiExplorer country="AR" path="/trade/payment/create" body={{merchantOrderNo:"ORDER202609170001",transactionAmount:"100",paymentType:"PAYMENT_TYPE",userName:"TEST USER",userPhone:"6123456789",userEmail:"user@example.com",paymentCallbackUrl:"https://merchant.example/callback"}} />
 
-<p class="endpoint-lead">使用统一字段创建代收订单。支付方式和必填字段根据请求所属国家确定。</p>
-
-> 阿根廷代收的 `transactionAmount` 必须为 10 的倍数。
-
+## 请求地址
 <div class="method-path"><strong>POST</strong><code>/trade/payment/create</code></div>
 
+## 请求头
 使用[公共请求头](/zh/guides/request-headers/)。
 
 ## 支付方式参数
@@ -28,7 +26,7 @@ import ApiExplorer from '../../../../../components/ApiExplorer.astro';
 | 字段 | 类型 | 必填 | 最大长度 | 说明 |
 |---|---|---|---:|---|
 | `merchantOrderNo` | String | 是 | 32 | 商户订单号 |
-| `transactionAmount` | String | 是 | 20 | 收款金额 |
+| `transactionAmount` | String | 是 | 20 | 收款金额   金额必须为 10 的倍数。|
 | `paymentType` | String | 是 | 24 | 支付方式 |
 | `idType` | String | 是 | 32 | 用户证件类型 |
 | `userIdCard` | String | 是 | 50 | 用户证件号码 |

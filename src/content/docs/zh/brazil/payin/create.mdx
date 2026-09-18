@@ -6,10 +6,11 @@ import ApiExplorer from '../../../../../components/ApiExplorer.astro';
 
 <ApiExplorer country="BR" path="/trade/payment/create" body={{merchantOrderNo:"ORDER202609170001",transactionAmount:"100",paymentType:"PAYMENT_TYPE",userName:"TEST USER",userPhone:"6123456789",userEmail:"user@example.com",paymentCallbackUrl:"https://merchant.example/callback"}} />
 
-<p class="endpoint-lead">使用统一字段创建代收订单。支付方式和必填字段根据请求所属国家确定。</p>
+
 
 <div class="method-path"><strong>POST</strong><code>/trade/payment/create</code></div>
 
+## 请求头
 使用[公共请求头](/zh/guides/request-headers/)。
 
 ## 支付方式参数
