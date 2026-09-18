@@ -1,0 +1,55 @@
+---
+title: 代收回调
+description: VellPay 向商户推送代收订单状态通知。
+---
+
+<p class="endpoint-lead">该回调由 VellPay 主动发送至创建订单时传入或商户后台配置的代收回调地址，不需要调用 VellPay API。</p>
+
+## 请求参数
+
+| 字段 | 类型 | 必填 | 最大长度 | 说明 |
+|---|---|---|---:|---|
+| `merchantOrderNo` | String | 是 | 32 | 商户订单号 |
+| `tradeNo` | String | 是 | 32 | 平台单号 |
+| `paymentSingleOrderNo` | String | 是 | 32 | 单次支付流水号 |
+| `paymentAmount` | String | 是 | - | 实际收款金额，整数或保留 2 位小数 |
+| `paymentType` | String | 是 | 24 | [支付方式](../create/#payment-methods) |
+| `paymentStatus` | String | 是 | 24 | [订单状态](/zh/guides/order-status/) |
+| `failMsg` | String | 否 | 200 | 订单失败原因 |
+| `paymentInfo` | String | 否 | 200 | 支付信息 |
+| `serviceAmount` | String | 否 | - | 服务费用 |
+| `completeTime` | String | 是 | - | 完成时间（国家当地时间，格式 `yyyy-MM-dd HH:mm:ss`） |
+
+## 请求示例
+
+```json
+{
+  "merchantOrderNo": "ORDER202609170001",
+  "tradeNo": "VP20260917000001",
+  "paymentSingleOrderNo": "PS20260917000001",
+  "paymentAmount": "100.00",
+  "paymentType": "PAYMENTLINK",
+  "paymentStatus": "SUCCESS",
+  "serviceAmount": "1.00",
+  "completeTime": "2026-09-17 15:30:00"
+}
+```
+
+## 响应参数
+
+| 字段 | 类型 | 必填 | 示例值 | 说明 |
+|---|---|---|---|---|
+| `result` | String | 是 | `SUCCESS` | 返回 `SUCCESS` 表示已成功接收；其他值按失败处理 |
+| `msg` | String | 否 | `OK` | 处理结果说明 |
+
+## 响应示例
+
+```json
+{
+  "result": "SUCCESS",
+  "msg": "OK"
+}
+```
+
+商户应对同一 `tradeNo` 和 `paymentSingleOrderNo` 的重复通知做幂等处理。
+

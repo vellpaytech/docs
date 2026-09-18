@@ -1,6 +1,6 @@
 ---
 title: 代付回调
-description: VellPay 向商户推送巴西代付订单状态及退款通知。
+description: VellPay 向商户推送代付订单状态通知。
 ---
 
 <p class="endpoint-lead">该回调由 VellPay 主动发送至创建订单时传入或商户后台配置的代付回调地址，不需要调用 VellPay API。</p>
@@ -17,9 +17,6 @@ description: VellPay 向商户推送巴西代付订单状态及退款通知。
 | `failMsg` | String | 否 | 200 | 订单失败原因 |
 | `serviceAmount` | String | 否 | - | 服务费用 |
 | `completeTime` | String | 是 | - | 完成时间（国家当地时间，格式 `yyyy-MM-dd HH:mm:ss`） |
-| `refundNo` | String | 否 | 32 | 退款单号；仅巴西代付退款通知返回 |
-| `refundAmount` | String | 否 | - | 退款金额；仅巴西代付退款通知返回 |
-| `refundTime` | String | 否 | - | 退款时间；仅巴西代付退款通知返回，格式 `yyyy-MM-dd HH:mm:ss` |
 
 ## 请求示例
 
@@ -28,13 +25,10 @@ description: VellPay 向商户推送巴西代付订单状态及退款通知。
   "merchantOrderNo": "PAYOUT202609170001",
   "tradeNo": "VP20260917000002",
   "payoutAmount": "100.00",
-  "payoutType": "CPF",
-  "payoutStatus": "REFUND",
+  "payoutType": "AHORRO",
+  "payoutStatus": "SUCCESS",
   "serviceAmount": "1.00",
-  "completeTime": "2026-09-17 15:30:00",
-  "refundNo": "REFUND202609170001",
-  "refundAmount": "100.00",
-  "refundTime": "2026-09-17 16:00:00"
+  "completeTime": "2026-09-17 15:30:00"
 }
 ```
 
@@ -56,4 +50,3 @@ description: VellPay 向商户推送巴西代付订单状态及退款通知。
 
 商户应对同一 `tradeNo` 的重复通知做幂等处理。
 
-<div class="country-note">只有巴西代付回调包含退款相关字段；其他国家不会返回 <code>refundNo</code>、<code>refundAmount</code> 或 <code>refundTime</code>。</div>

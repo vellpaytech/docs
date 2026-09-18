@@ -8,8 +8,10 @@ const country = (label, slug, extraItems = []) => ({
   items: [
     { label: "代收创建", link: `/${slug}/payin/create` },
     { label: "代收查询", link: `/${slug}/payin/query` },
+    { label: "代收回调", link: `/${slug}/payin/callback` },
     { label: "代付创建", link: `/${slug}/payout/create` },
     { label: "代付查询", link: `/${slug}/payout/query` },
+    { label: "代付回调", link: `/${slug}/payout/callback` },
     { label: "收银台创建", link: `/${slug}/checkout/create` },
     { label: "余额查询", link: `/${slug}/inquire/balance` },
     ...extraItems,
@@ -55,9 +57,7 @@ export default defineConfig({
             { label: "凭证查询", link: "/argentina/suspense/query" },
             { label: "悬账补单", link: "/argentina/suspense/reorder" },
           ]),
-          country("🇧🇷 巴西", "brazil", [
-            { label: "代付回调", link: "/brazil/payout/callback" },
-          ]),
+          country("🇧🇷 巴西", "brazil"),
         ]},
       ],
       components: {

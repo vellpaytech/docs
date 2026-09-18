@@ -45,16 +45,15 @@ const countryLinks = (country: (typeof countryGroups)[number]["countries"][numbe
   { label: "创建收银台", icon: CreditCard, path: `/${country.slug}/checkout/create` },
   { label: "创建代收", icon: ArrowDownLeft, path: `/${country.slug}/payin/create` },
   { label: "查询代收", icon: Search, path: `/${country.slug}/payin/query` },
+  { label: "代收回调", icon: BellRing, path: `/${country.slug}/payin/callback` },
   { label: "创建代付", icon: ArrowUpRight, path: `/${country.slug}/payout/create` },
   { label: "查询代付", icon: Search, path: `/${country.slug}/payout/query` },
+  { label: "代付回调", icon: BellRing, path: `/${country.slug}/payout/callback` },
   { label: "余额查询", icon: WalletCards, path: `/${country.slug}/inquire/balance` },
   ...(country.slug === "cambodia" ? [
     { label: "创建 KYC", icon: UserRoundCheck, path: "/cambodia/kyc/create" },
     { label: "查询 KYC", icon: Search, path: "/cambodia/kyc/query" },
     { label: "KYC 回调", icon: BellRing, path: "/cambodia/kyc/callback" },
-  ] : []),
-  ...(country.slug === "brazil" ? [
-    { label: "代付回调", icon: BellRing, path: "/brazil/payout/callback" },
   ] : []),
   ...(country.slug === "argentina" ? [
     { label: "悬账列表", icon: ListFilter, path: "/argentina/suspense/list" },
