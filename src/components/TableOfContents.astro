@@ -9,3 +9,12 @@ const filteredToc: Props["toc"] | undefined =
 ---
 
 <Default {...Astro.props} toc={filteredToc} />
+
+<style>
+  :global(.right-sidebar-container) { border-inline-start:1px solid color-mix(in srgb,var(--sl-color-hairline) 60%,transparent); width:12.8rem; }
+  :global(.right-sidebar-panel) { padding:1.2rem 1rem; }
+  :global(.right-sidebar-panel .sl-container) { width:auto; }
+  :global(.right-sidebar-panel h2) { color:var(--sl-color-text); font-size:.86rem; font-weight:750; }
+  :global(.right-sidebar-panel a) { color:var(--sl-color-gray-2); padding:.35rem 0 .35rem .7rem; }
+  :global(.right-sidebar-panel a[aria-current="true"]),:global(.right-sidebar-panel a[aria-current="page"]) { border-inline-start:2px solid var(--color-primary); color:var(--color-primary); font-weight:700; }
+</style>

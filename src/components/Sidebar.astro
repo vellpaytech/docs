@@ -109,38 +109,36 @@ const countryLinks = (country: (typeof countryGroups)[number]["countries"][numbe
 </script>
 
 <style>
-  .vp-sidebar { color:var(--sl-color-gray-2); font-size:.9rem; padding:.35rem .4rem 2rem; }
+  .vp-sidebar { color:var(--sl-color-gray-2); font-size:.875rem; padding:.65rem .55rem 2rem; }
   details { margin:0; }
-  summary { align-items:center; border-radius:.55rem; cursor:pointer; display:flex; gap:10px; list-style:none; min-height:2.35rem; padding:.42rem .55rem; }
+  summary { align-items:center; border-radius:7px; cursor:pointer; display:flex; gap:10px; list-style:none; min-height:2.45rem; padding:.4rem .6rem; }
   summary::-webkit-details-marker { display:none; }
-  summary:hover { color:#0f766e; }
-  .guide-section summary { color:var(--sl-color-white); font-weight:680; }
-  .guide-section summary.active { color:var(--sl-color-accent-high); }
+  summary:hover { color:var(--color-primary-hover); }
+  .guide-section summary { color:var(--color-text); font-weight:650; }
+  .guide-section summary.active { color:var(--color-primary); }
   :global(.nav-icon),.countries-heading :global(svg),.region-label :global(svg),.chevrons :global(svg) { color:#7890a3; flex:0 0 18px; height:18px; stroke-width:1.8; width:18px; }
-  summary:hover :global(.nav-icon),summary:hover .chevrons :global(svg),.region-label:hover :global(svg) { color:#0f766e; }
+  summary:hover :global(.nav-icon),summary:hover .chevrons :global(svg),.region-label:hover :global(svg) { color:var(--color-primary-hover); }
   summary.active :global(.nav-icon),summary.active .chevrons :global(svg) { color:var(--sl-color-accent); }
   .chevrons { display:grid; height:18px; margin-left:auto; place-items:center; width:18px; }
   .chevrons :global(svg) { grid-area:1/1; }.chevrons :global(svg:last-child) { display:none; }details[open]>summary .chevrons :global(svg:first-child) { display:none; }details[open]>summary .chevrons :global(svg:last-child) { display:block; }
   .guide-links,.country-pages { display:grid; padding:.15rem 0 .35rem 2.35rem; }
-  .guide-links a,.country-pages a { border-left:1px solid var(--sl-color-hairline); color:var(--sl-color-gray-3); line-height:1.35; padding:.42rem .7rem; text-decoration:none; }
-  .guide-links a:hover,.country-pages a:hover { color:var(--sl-color-white); }
-  .guide-links a.current { border-left-color:var(--sl-color-accent); color:var(--sl-color-accent-high); font-weight:650; }
+  .guide-links a,.country-pages a { border-left:1px solid color-mix(in srgb,var(--color-border) 45%,transparent); color:var(--sl-color-gray-2); line-height:1.35; padding:.42rem .7rem; text-decoration:none; }
+  .guide-links a:hover,.country-pages a:hover { color:var(--color-primary-hover); }
+  .guide-links a.current { border-left-color:var(--color-primary); color:var(--color-primary); font-weight:650; }
   .countries-heading { align-items:center; border-top:1px solid var(--sl-color-hairline); color:var(--sl-color-gray-3); display:flex; font-size:.75rem; font-weight:750; gap:10px; letter-spacing:.08em; margin:1rem .45rem .55rem; padding-top:1rem; text-transform:uppercase; }
   .region { border-left:2px solid transparent; margin:.25rem 0 .7rem; }
-  .region.active { border-left-color:color-mix(in srgb,var(--sl-color-accent) 55%,transparent); }
+  .region.active { border-left-color:transparent; }
   .region-label { align-items:center; color:var(--sl-color-gray-2); display:flex; gap:10px; min-height:2.2rem; padding:.35rem .55rem; }
-  .region.active .region-label :global(svg) { color:var(--sl-color-accent); }.region-label b { color:var(--sl-color-white); font-weight:680; }.region-label small { color:var(--sl-color-gray-3); font-size:.68rem; margin-left:auto; }
+  .region.active .region-label :global(svg) { color:var(--color-primary); }.region-label b { color:var(--color-text); font-weight:680; }.region-label small { color:var(--sl-color-gray-3); font-size:.68rem; margin-left:auto; }
   .country-list { margin-left:.45rem; }
   .vp-country>summary { position:relative; }
-  .vp-country>summary.active { color:var(--sl-color-accent-high); font-weight:720; }
-  .vp-country>summary.active::before { background:var(--sl-color-accent); border-radius:2px; content:""; height:1.15rem; left:-.48rem; position:absolute; width:2px; }
-  .flag { border-radius:2px; height:18px; object-fit:cover; width:24px; }.country-name { color:var(--sl-color-white); }.vp-country summary small { color:var(--sl-color-gray-3); font-size:.68rem; margin-left:auto; }.vp-country summary .chevrons { margin-left:0; }
+  .vp-country>summary.active { background:var(--color-selected); color:var(--color-primary); font-weight:720; }
+  .vp-country>summary.active::before { background:var(--color-primary); border-radius:2px; content:""; height:1.5rem; left:-.55rem; position:absolute; width:3px; }
+  .flag { border-radius:2px; height:18px; object-fit:cover; width:24px; }.country-name { color:var(--color-text); }.vp-country summary small { color:var(--sl-color-gray-3); font-size:.68rem; margin-left:auto; text-align:right; }.vp-country summary .chevrons { margin-left:0; }
   .country-pages { padding-left:1.8rem; }
   .country-pages a { align-items:center; display:flex; gap:10px; }
   .country-pages a :global(svg) { color:#7890a3; flex:0 0 16px; height:16px; stroke-width:1.8; width:16px; }
-  .country-pages a:hover :global(svg) { color:#0f766e; }.country-pages a.current :global(svg) { color:var(--sl-color-accent); }
-  .country-pages a.current { background:color-mix(in srgb,var(--sl-color-accent-low) 62%,transparent); border-left-color:var(--sl-color-accent); border-radius:0 .45rem .45rem 0; color:var(--sl-color-accent-high); font-weight:680; }
-  :global([data-theme="light"]) .guide-section summary,:global([data-theme="light"]) .region-label b,:global([data-theme="light"]) .country-name { color:#18382a; }
-  :global([data-theme="light"]) .guide-links a:hover,:global([data-theme="light"]) .country-pages a:hover { color:#0f766e; }
+  .country-pages a:hover :global(svg) { color:var(--color-primary-hover); }.country-pages a.current :global(svg) { color:var(--color-primary); }
+  .country-pages a.current { background:var(--color-selected); border-left-color:transparent; border-radius:6px; color:var(--color-primary); font-weight:680; }
   @media(max-width:50rem) { .vp-sidebar { padding-bottom:1rem; } }
 </style>

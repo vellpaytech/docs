@@ -59,6 +59,9 @@ export default defineConfig({
       components: {
         ContentPanel: "./src/components/ContentPanel.astro",
         Sidebar: "./src/components/Sidebar.astro",
+        Header: "./src/components/Header.astro",
+        TableOfContents: "./src/components/TableOfContents.astro",
+        MobileTableOfContents: "./src/components/MobileTableOfContents.astro",
       },
       customCss: ["./src/tailwind.css"],
     }),
